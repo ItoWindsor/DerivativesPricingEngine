@@ -4,7 +4,8 @@
 #include "core/InterestRateCurve.hpp"
 
 class MarketData {
-  public : 
+  public :
+    MarketData() = default;
     void load_interest_rate_curve(const std::string& filepath);
     std::shared_ptr<InterestRateCurve> get_rate_curve() const;
   private:
