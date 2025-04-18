@@ -13,9 +13,9 @@ This roadmap follows a top-down build order:
 
 **Branch**: `feature/core-interfaces`
 
-- [ ] Create `core/Instrument.hpp` interface
-- [ ] Create `core/Model.hpp` interface
-- [ ] Create `core/PricingEngine.hpp` interface
+- [X] Create `core/Instrument.hpp` interface
+- [X] Create `core/Model.hpp` interface
+- [X] Create `core/PricingEngine.hpp` interface
 - [ ] Add `MarketDataProvider` base class
 - [ ] Create `core/PricingContext.hpp` to bind market data + model + engine
 
