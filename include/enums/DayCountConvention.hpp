@@ -2,7 +2,8 @@
 #define DAYCOUNTCONVENTION_HPP
 
 enum class DayCountConvention {
-    Actual360,
+  Actual360,
+  Actual365,
 };
 
 #endif
