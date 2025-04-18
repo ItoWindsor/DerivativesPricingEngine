@@ -3,7 +3,6 @@
 
 #include <string>
 #include <chrono>
-#include <iostream>
 
 class PricingEngine;
 
@@ -13,11 +12,14 @@ class Instrument {
     
     virtual void setPricingEngine(std::shared_ptr<PricingEngine> engine) = 0;
     std::string get_name();
-    virtual double compute_price() const = 0;
+
+    std::chrono::sys_days get_start_date() const;
+    std::chrono::sys_days get_valuation_date() const;
+    std::chrono::sys_days get_maturity_date() const;
   private:
-    std::chrono::year_month_day StartDate;
-    std::chrono::year_month_day ValuationDate;
-    std::chrono::year_month_day MaturityDate;
+    std::chrono::sys_days StartDate;
+    std::chrono::sys_days ValuationDate;
+    std::chrono::sys_days MaturityDate;
     std::string name;
 };
 
