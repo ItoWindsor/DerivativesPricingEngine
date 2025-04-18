@@ -2,6 +2,8 @@
 #define INSTRUMENT_HPP
 
 #include <string>
+#include <chrono>
+#include <iostream>
 
 class PricingEngine;
 
@@ -13,6 +15,9 @@ class Instrument {
     std::string get_name();
     virtual double compute_price() const = 0;
   private:
+    std::chrono::year_month_day StartDate;
+    std::chrono::year_month_day ValuationDate;
+    std::chrono::year_month_day MaturityDate;
     std::string name;
 };
 
