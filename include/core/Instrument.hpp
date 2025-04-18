@@ -8,8 +8,12 @@ class PricingEngine;
 
 class Instrument {
   public:
-    virtual ~Instrument() = default;
-    
+    Instrument(
+      std::chrono::sys_days start_date,
+      std::chrono::sys_days valuation_date,
+      std::chrono::sys_days maturity_date,
+      std::string name = "custom_name"
+      );   
     virtual void setPricingEngine(std::shared_ptr<PricingEngine> engine) = 0;
     std::string get_name();
 
@@ -17,9 +21,9 @@ class Instrument {
     std::chrono::sys_days get_valuation_date() const;
     std::chrono::sys_days get_maturity_date() const;
   private:
-    std::chrono::sys_days StartDate;
-    std::chrono::sys_days ValuationDate;
-    std::chrono::sys_days MaturityDate;
+    std::chrono::sys_days startDate;
+    std::chrono::sys_days valuationDate;
+    std::chrono::sys_days maturityDate;
     std::string name;
 };
 
