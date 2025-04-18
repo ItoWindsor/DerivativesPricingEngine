@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "instruments/bond.hpp"
+#include "instruments/Bond.hpp"
 
 TEST(SampleTest, TestEquality) {
   EXPECT_EQ(1+1,2);
