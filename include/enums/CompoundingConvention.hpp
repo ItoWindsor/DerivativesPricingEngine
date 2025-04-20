@@ -3,7 +3,10 @@
 
 enum class CompoundingConvention {
   continuous,
-  exponential
+  actuarial_anually,
+  actuarial_semianually,
+  actuarial_quarterly,
+  actuarial_monthly
 };
 
 #endif
