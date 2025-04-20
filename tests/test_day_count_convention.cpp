@@ -11,8 +11,8 @@ TEST(DayCountConventionTest, TimeToMaturity) {
   std::chrono::sys_days start_date{start_ymd};
   std::chrono::sys_days end_date{end_ymd};
 
-  double actual360 = year_fraction(start_date, end_date, DayCountConvention::Actual360);
-  double actual365 = year_fraction(start_date, end_date, DayCountConvention::Actual365);
+  double actual360 = compute_year_fraction(start_date, end_date, DayCountConvention::Actual360);
+  double actual365 = compute_year_fraction(start_date, end_date, DayCountConvention::Actual365);
 
   EXPECT_DOUBLE_EQ(actual360, 183.0 / 360.0);
   EXPECT_DOUBLE_EQ(actual365, 183.0 / 365.0);
