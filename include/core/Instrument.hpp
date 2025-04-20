@@ -1,6 +1,7 @@
 #ifndef INSTRUMENT_HPP
 #define INSTRUMENT_HPP
 
+#include "enums/DayCountConvention.hpp"
 #include <string>
 #include <chrono>
 
@@ -12,7 +13,7 @@ class Instrument {
       std::chrono::sys_days start_date,
       std::chrono::sys_days valuation_date,
       std::chrono::sys_days maturity_date,
-      std::string name = "custom_name"
+      DayCountConvention dayCountConvention = DayCountConvention::Actual365
       );   
     virtual void setPricingEngine(std::shared_ptr<PricingEngine> engine) = 0;
     std::string get_name();
@@ -20,11 +21,12 @@ class Instrument {
     std::chrono::sys_days get_start_date() const;
     std::chrono::sys_days get_valuation_date() const;
     std::chrono::sys_days get_maturity_date() const;
+    DayCountConvention get_day_convention() const;
   private:
     std::chrono::sys_days startDate;
     std::chrono::sys_days valuationDate;
     std::chrono::sys_days maturityDate;
-    std::string name;
+    DayCountConvention dayCountConvention;
 };
 
 
