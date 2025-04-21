@@ -26,6 +26,7 @@ set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
+add_compile_definitions(PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 # Include directories
 include_directories(${INCLUDE_DIR})

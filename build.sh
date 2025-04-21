@@ -34,4 +34,4 @@ echo "✅ Build completed successfully for $BUILD_TYPE build!"
 
 echo "▶️ Running tests..."
 cd $BUILD_DIR
-ctest --output-on-failure -V
+ctest --output-on-failure --extra-verbose
