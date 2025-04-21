@@ -17,14 +17,8 @@ class InterestRateCurve {
       const std::string& filepath, std::chrono::sys_days valuation_date
     );
 
-    virtual ~InterestRateCurve() = default;
-
-    virtual double interpolate(std::chrono::sys_days date) const = 0;
-    virtual std::vector<TupleDateDouble> interpolate(
-      const std::vector<TupleDateDouble>& vec_rates) const = 0;
-
     const std::vector<TupleDateDouble>& get_curve_data() const;
-    std::chrono::sys_days get_valuation_date() const;
+    const std::chrono::sys_days get_valuation_date() const;
   private:
     std::chrono::sys_days valuationDate;
     std::vector<TupleDateDouble> curve;
