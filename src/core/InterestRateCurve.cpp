@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -25,13 +26,15 @@ InterestRateCurve::InterestRateCurve(
       is_header = false;
       continue;
     }
-
+    if (line.find_first_not_of(" \t\n\r") == std::string::npos) continue;
     std::stringstream streamed_string(line);
     std::string str_date;
     std::string str_rate;
 
     if (!std::getline(streamed_string, str_date, ',')) continue;
     if (!std::getline(streamed_string, str_rate, ',')) continue;
+
+    // std::cout << "Parsed: " << str_date << ", Rate: " << str_rate << "\n";
 
     std::tm tm = {}; // std::chrono::parser() not available UNDER MACOS ZEBI
     std::istringstream stream_date(str_date);

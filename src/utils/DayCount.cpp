@@ -42,7 +42,7 @@ std::vector<double> compute_year_fraction(
   DayCountConvention convention
   ) {
   
-  std::vector<double> vec_time(vec_date.size(), {0.0});
+  std::vector<double> vec_time;
   for (const auto& date : vec_date) {
           double yf = compute_year_fraction(valuation_date, date, convention);
           vec_time.emplace_back(yf);
