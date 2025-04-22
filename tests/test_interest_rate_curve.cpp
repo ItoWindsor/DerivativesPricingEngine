@@ -2,6 +2,9 @@
 #include <chrono>
 #include "core/InterestRateCurve.hpp"
 #include "utils/CurveInterpolation.hpp"
+#include "enums/DayCountConvention.hpp"
+#include "utils/DayCount.hpp"
+
 
 TEST(InterestRateCurveTest, CheckLoadInterestRateCurveFromCSV){
   
@@ -64,7 +67,37 @@ TEST(InterpolationTest, FlatExtrapolationAfterLast) {
   std::vector<double> query = {3.0};
 
   std::vector<std::tuple<double,double>>  interpolated = interpolate_rate_curve(curve, query);
-  ASSERT_NEAR(std::get<1>(interpolated[0]), 0.05, 1e-6);
+  ASSERT_NEAR(std::get<1>(interpolated[0]), 0.05, 1e-10);
 }
 
+TEST(InterestRateCurveTest, InterpolationOnCurveExample) {
+  std::string filepath = std::string(PROJECT_SOURCE_DIR) + "/data/interest_rate_curves/curve_example.csv";
+  std::chrono::sys_days valuation_date = std::chrono::year{2024}/5/10;
 
+  InterestRateCurve curve(filepath, valuation_date);
+  auto curve_data = curve.get_curve_data();
+
+  auto curve_time_rate = compute_year_fraction(valuation_date, curve_data, DayCountConvention::Actual360);
+
+  std::vector<std::chrono::sys_days> test_dates = {
+    std::chrono::year{2024}/7/10,  // Between 2024-05-10 and 2024-10-10
+    std::chrono::year{2024}/12/10, // Between 2024-10-10 and 2025-01-10
+    std::chrono::year{2029}/1/1    // Between 2025-01-10 and 2030-04-17
+  };
+
+  auto test_times = compute_year_fraction(valuation_date, test_dates, DayCountConvention::Actual360);
+  auto interpolated = interpolate_rate_curve(curve_time_rate, test_times);
+
+  ASSERT_EQ(interpolated.size(), test_times.size());
+
+  // Expected values from linear interpolation:
+  // 1. Between 0.05 and 0.03 → expect ≈ 0.04
+  // 2. Between 0.03 and 0.02 → expect ≈ 0.025
+  // 3. Between 0.02 and 0.03 → expect ≈ 0.0255 (depends on year fractions)
+
+  std::vector<double> expected_rates = {0.04, 0.025, 0.0255};
+
+  for (size_t i = 0; i < expected_rates.size(); ++i) {
+    ASSERT_NEAR(std::get<1>(interpolated[i]), expected_rates[i], 1e-10); // Allow small tolerance
+  }
+}
