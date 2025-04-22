@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include "core/InterestRateCurve.hpp"
+#include "utils/CurveInterpolation.hpp"
 
 TEST(InterestRateCurveTest, CheckLoadInterestRateCurveFromCSV){
   
@@ -25,6 +26,45 @@ TEST(InterestRateCurveTest, InterpolationFlatCurve){
   
   InterestRateCurve curve(filepath, valuation_date);
   
+}
+
+TEST(InterpolationTest, LinearInterpolation) {
+  std::vector<std::tuple<double, double>> curve = {
+      {0.0, 0.02},
+      {1.0, 0.04},
+      {2.0, 0.06}
+  };
+  std::vector<double> query = {0.5, 1.5, 2.0};
+
+  std::vector<std::tuple<double,double>> interpolated = interpolate_rate_curve(curve, query);
+  ASSERT_EQ(interpolated.size(), query.size());
+
+  std::vector<double> expected = {0.03, 0.05, 0.06};
+  for (size_t i = 0; i < query.size(); ++i) {
+    ASSERT_NEAR(std::get<1>(interpolated[i]), expected[i], 1e-6);
+  }
+}
+
+TEST(InterpolationTest, FlatExtrapolationBeforeFirst) {
+  std::vector<std::tuple<double, double>> curve = {
+      {1.0, 0.03},
+      {2.0, 0.05}
+  };
+  std::vector<double> query = {0.5};
+
+  std::vector<std::tuple<double,double>>  interpolated = interpolate_rate_curve(curve, query);
+  ASSERT_NEAR(std::get<1>(interpolated[0]), 0.03, 1e-6);
+}
+
+TEST(InterpolationTest, FlatExtrapolationAfterLast) {
+  std::vector<std::tuple<double, double>> curve = {
+      {1.0, 0.03},
+      {2.0, 0.05}
+  };
+  std::vector<double> query = {3.0};
+
+  std::vector<std::tuple<double,double>>  interpolated = interpolate_rate_curve(curve, query);
+  ASSERT_NEAR(std::get<1>(interpolated[0]), 0.05, 1e-6);
 }
 
 
