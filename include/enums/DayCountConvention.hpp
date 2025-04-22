@@ -6,4 +6,10 @@ enum class DayCountConvention {
   Actual365,
 };
 
+// I don't remember the exact name -> should modify it after 
+enum class ShortSchedule {
+  ShortStart,
+  ShortEnd
+};
+
 #endif
