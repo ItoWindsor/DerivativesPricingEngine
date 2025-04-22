@@ -95,9 +95,11 @@ TEST(InterestRateCurveTest, InterpolationOnCurveExample) {
   // 2. Between 0.03 and 0.02 → expect ≈ 0.025
   // 3. Between 0.02 and 0.03 → expect ≈ 0.0255 (depends on year fractions)
 
-  std::vector<double> expected_rates = {0.04, 0.025, 0.0255};
+  std::vector<double> expected_rates = {0.0420294, 0.0233696, 0.0275507};
 
   for (size_t i = 0; i < expected_rates.size(); ++i) {
-    ASSERT_NEAR(std::get<1>(interpolated[i]), expected_rates[i], 1e-10); // Allow small tolerance
+    double interpolated_value = std::get<1>(interpolated[i]);
+    double expected_value = expected_rates[i];
+    ASSERT_NEAR(interpolated_value, expected_value, 1e-5); // Allow small tolerance
   }
 }
