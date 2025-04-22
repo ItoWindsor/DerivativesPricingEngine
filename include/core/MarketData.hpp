@@ -6,7 +6,7 @@
 class MarketData {
   public :
     MarketData() = default;
-    void load_interest_rate_curve(const std::string& filepath);
+    void load_interest_rate_curve(const std::string& filepath, std::chrono::sys_days valuation_date);
     std::shared_ptr<InterestRateCurve> get_rate_curve() const;
   private:
     std::shared_ptr<InterestRateCurve> interestRateCurve;
