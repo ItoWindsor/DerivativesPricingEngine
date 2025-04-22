@@ -15,7 +15,6 @@ class Instrument {
       std::chrono::sys_days maturity_date,
       DayCountConvention dayCountConvention = DayCountConvention::Actual365
       );   
-    virtual void setPricingEngine(std::shared_ptr<PricingEngine> engine) = 0;
     std::string get_name();
 
     std::chrono::sys_days get_start_date() const;
