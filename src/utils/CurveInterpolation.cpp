@@ -23,10 +23,8 @@ std::vector<std::tuple<double, double>> interpolate_rate_curve(
               ++j;
           }
 
-          double t0 = std::get<0>(curve_rate[j]);
-          double t1 = std::get<0>(curve_rate[j + 1]);
-          double r0 = std::get<1>(curve_rate[j]);
-          double r1 = std::get<1>(curve_rate[j + 1]);
+          const auto [t0, r0] = curve_rate[j];
+          const auto [t1, r1] = curve_rate[j + 1];
 
           interpolated_rate = r0 + (r1 - r0) * (t - t0) / (t1 - t0);
       }
