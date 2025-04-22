@@ -32,14 +32,20 @@ double AnalyticalEngine::compute_price(const Bond& bond){
   double price = 0.0;
 
   for(auto [t, r] : interpolated_curve){
-     if (t >= valuation_time || t <= maturity_time){
-        double yield = spread + r;
-        double discount_factor = compute_discount_factor(yield, t, compounding_method, compounding_frequency);
-        price += coupon_rate*nominal*discount_factor; 
-        if (t == std::get<0>(interpolated_curve.back()) ){
+  
+    if (t >= valuation_time || t <= maturity_time){
+    
+      double yield = spread + r;
+      double discount_factor = compute_discount_factor(yield, t, compounding_method, compounding_frequency);
+      
+      price += coupon_rate*nominal*discount_factor; 
+        
+
+      if (t == std::get<0>(interpolated_curve.back()) ){
           price += nominal*discount_factor;
         }
-      }
+      
+    }
   }
 
   return price;
