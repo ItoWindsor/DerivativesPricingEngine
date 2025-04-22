@@ -13,7 +13,9 @@ double AnalyticalEngine::compute_price(const Bond& bond){
 
   std::vector<TupleDateDouble> curve_data = market_data->get_rate_curve()->get_curve_data();
   DayCountConvention day_convention = bond.get_day_convention(); 
-  CompoundingConvention compounding_convention = bond.get_compounding_convention();
+  CompoundingMethod compounding_method = bond.get_compounding_method();
+  CompoundingFrequency compounding_frequency = bond.get_compounding_frequency();
+ 
   std::chrono::sys_days valuation_date = bond.get_valuation_date();
   std::chrono::sys_days maturity_date = bond.get_maturity_date();
  
@@ -32,7 +34,7 @@ double AnalyticalEngine::compute_price(const Bond& bond){
   for(auto [t, r] : interpolated_curve){
      if (t >= valuation_time || t <= maturity_time){
         double yield = spread + r;
-        double discount_factor = compute_discount_factor(yield, t, compounding_convention);
+        double discount_factor = compute_discount_factor(yield, t, compounding_method, compounding_frequency);
         price += coupon_rate*nominal*discount_factor; 
         if (t == std::get<0>(interpolated_curve.back()) ){
           price += nominal*discount_factor;
