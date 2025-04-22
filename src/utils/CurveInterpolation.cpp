@@ -1,4 +1,3 @@
-#include <iostream>
 #include <vector>
 #include <tuple>
 #include "utils/CurveInterpolation.hpp"
