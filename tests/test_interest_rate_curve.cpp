@@ -18,4 +18,13 @@ TEST(InterestRateCurveTest, CheckLoadInterestRateCurveFromCSV){
   }
 }
 
+TEST(InterestRateCurveTest, InterpolationFlatCurve){
+
+  std::string filepath = std::string(PROJECT_SOURCE_DIR) + "/data/interest_rate_curves/flat_curve.csv";
+  std::chrono::sys_days valuation_date = std::chrono::year{2025} / std::chrono::month{1} / std::chrono::day{1}; 
+  
+  InterestRateCurve curve(filepath, valuation_date);
+  
+}
+
 
