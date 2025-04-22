@@ -2,6 +2,7 @@
 #include <vector>
 #include <tuple>
 #include "utils/DayCount.hpp"
+#include "enums/CompoundingConvention.hpp"
 #include "enums/DayCountConvention.hpp"
 
 double compute_year_fraction(
@@ -52,20 +53,24 @@ std::vector<double> compute_year_fraction(
 double compute_discount_factor(
   double yield,
   double time_to_maturity,
-  CompoundingConvention compounding_convention){
+  CompoundingMethod compounding_method,
+  CompoundingFrequency compounding_frequency){
   
   double df = 0.0;
-  switch (compounding_convention) {
-    case CompoundingConvention::continuous:
+  switch (compounding_method) {
+    case CompoundingMethod::continuous:
       df = std::exp(-yield*time_to_maturity);
-    case CompoundingConvention::actuarial_anually:
-      df = std::pow(1+yield,-time_to_maturity);
-    case CompoundingConvention::actuarial_semianually:
-      df = std::pow(1+yield/2.0,-2.0*time_to_maturity);
-    case CompoundingConvention::actuarial_quarterly:
-      df = std::pow(1+yield/4.0,-4.0*time_to_maturity);
-    case CompoundingConvention::actuarial_monthly:
-      df = std::pow(1+yield/12.0,-12.0*time_to_maturity);
+    case CompoundingMethod::actuarial:
+      switch (compounding_frequency){
+        case CompoundingFrequency::anually:
+          df = std::pow(1+yield,-time_to_maturity);
+        case CompoundingFrequency::semianually:
+          df = std::pow(1+yield/2.0,-2.0*time_to_maturity);
+        case CompoundingFrequency::quarterly:
+          df = std::pow(1+yield/4.0,-4.0*time_to_maturity);
+        case CompoundingFrequency::monthly:
+          df = std::pow(1+yield/12.0,-12.0*time_to_maturity);
+      }
   }
   return df;
 }

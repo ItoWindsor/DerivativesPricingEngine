@@ -29,5 +29,6 @@ std::vector<double> compute_year_fraction(
 double compute_discount_factor( 
   double yield,
   double time_to_maturity,
-  CompoundingConvention compounding_convention
+  CompoundingMethod compounding_convention,
+  CompoundingFrequency compouding_frequency
 );
