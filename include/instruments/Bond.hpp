@@ -12,24 +12,42 @@ class Bond : public Instrument{
       std::chrono::sys_days start_date,
       std::chrono::sys_days valuation_date,
       std::chrono::sys_days maturity_date,
-      DayCountConvention day_count_convention,
-      CompoundingConvention CompoundingConvention,
       double Nominal,
       double coupon_rate,
       double spread,
-      std::vector<std::chrono::sys_days> vec_date_cashflow
-    );    
+      std::vector<std::chrono::sys_days> vec_date_cashflow,
+      DayCountConvention day_count_convention = DayCountConvention::Actual365,
+      CompoundingMethod compounding_method = CompoundingMethod::actuarial,
+      CompoundingFrequency compounding_frequency = CompoundingFrequency::anually
+    );   
+    Bond(
+      std::chrono::sys_days start_date,
+      std::chrono::sys_days valuation_date,
+      std::chrono::sys_days maturity_date,
+      double Nominal,
+      double coupon_rate,
+      double spread,
+      DayCountConvention day_count_convention = DayCountConvention::Actual365,
+      CompoundingMethod compounding_method = CompoundingMethod::actuarial,
+      CompoundingFrequency compounding_frequency = CompoundingFrequency::anually,
+      ShortSchedule short_schedule = ShortSchedule::ShortEnd
+    );
     double get_nominal() const;
     double get_spread() const;
     double get_coupon_rate() const;
-    CompoundingConvention get_compounding_convention() const;
+    CompoundingMethod get_compounding_method() const;
+    CompoundingFrequency get_compounding_frequency() const;
     const std::vector<std::chrono::sys_days>& get_vec_date_cashflows() const;
   private:
-    CompoundingConvention compounding_convention;
+    CompoundingMethod compounding_method;
+    CompoundingFrequency compounding_frequency;
     double nominal;
     double coupon_rate;
     double spread;
     std::vector<std::chrono::sys_days> vec_date_cashflow; 
 };
+
+
+std::ostream& operator<<(std::ostream& output_stream,const Bond& bond);
 
 #endif
