@@ -23,12 +23,12 @@ std::vector<double> compute_year_fraction(
   const std::vector<std::chrono::sys_days>& vec_date, 
   DayCountConvention convention);
 
-
-#endif
-
 double compute_discount_factor( 
   double yield,
   double time_to_maturity,
   CompoundingMethod compounding_convention,
   CompoundingFrequency compouding_frequency
 );
+
+#endif
+
