@@ -3,12 +3,15 @@
 #include <sstream>
 #include <stdexcept>
 #include <chrono>
+#include "enums/DayCountConvention.hpp"
+#include "utils/CurveInterpolation.hpp"
+#include "utils/DayCount.hpp"
 #include "core/InterestRateCurve.hpp"
 
 InterestRateCurve::InterestRateCurve(
   std::chrono::sys_days valuation_date,
   const std::vector<TupleDateDouble>& curve_data)
-: valuationDate(valuation_date), curve{curve_data} {}
+: valuationDate(valuation_date), curve(curve_data) {}
 
 InterestRateCurve::InterestRateCurve(
   const std::string& filepath, std::chrono::sys_days valuation_date)
@@ -57,4 +60,13 @@ const std::vector<TupleDateDouble>& InterestRateCurve::get_curve_data() const{
 
 const std::chrono::sys_days InterestRateCurve::get_valuation_date() const{
   return this->valuationDate;
+}
+
+std::vector<std::tuple<double,double>> InterestRateCurve::interpolate_curve(const std::vector<double>& curve_to_interpolate, DayCountConvention day_convention ){
+  
+  auto base_curve_date = this->get_curve_data();
+  auto valuation_date = this->get_valuation_date();
+  std::vector<std::tuple<double,double>> base_curve = compute_year_fraction(valuation_date, base_curve_date, day_convention);
+
+  return interpolate_rate_curve(base_curve, curve_to_interpolate);
 }

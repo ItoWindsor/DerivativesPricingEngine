@@ -4,7 +4,8 @@
 #include "utils/CurveInterpolation.hpp"
 #include "enums/DayCountConvention.hpp"
 #include "utils/DayCount.hpp"
-
+#include "utils/TimeSchedule.hpp"
+#include "curves/FlatCurve.hpp"
 
 TEST(InterestRateCurveTest, CheckLoadInterestRateCurveFromCSV){
   
@@ -102,4 +103,35 @@ TEST(InterestRateCurveTest, InterpolationOnCurveExample) {
     double expected_value = expected_rates[i];
     ASSERT_NEAR(interpolated_value, expected_value, 1e-5); // Allow small tolerance
   }
+}
+
+TEST(FlatCurveTest, ConstructionStoresCorrectRateAndDate) {
+    auto valuation_date = make_date(2025, 4, 30);
+    auto maturity_date = make_date(2030, 4, 30);
+    double rate = 0.03;
+
+    FlatCurve curve(valuation_date, maturity_date, rate);
+    auto data = curve.get_curve_data();
+
+    ASSERT_EQ(data.size(), 1);
+    EXPECT_EQ(std::get<0>(data[0]), maturity_date);
+    EXPECT_DOUBLE_EQ(std::get<1>(data[0]), rate);
+}
+
+TEST(FlatCurveTest, InterpolationReturnsFlatRate) {
+    std::chrono::sys_days valuation_date = make_date(2025, 4, 30);
+    std::chrono::sys_days maturity_date = make_date(2030, 4, 30);
+    double rate = 0.05;
+
+    FlatCurve curve(valuation_date, maturity_date, rate);
+
+    std::vector<double> time_points = {0.5, 1.0, 2.5, 5.0};
+    std::vector<std::tuple<double, double>> interpolated = curve.interpolate_curve(time_points);
+
+    ASSERT_EQ(interpolated.size(), time_points.size());
+
+    for (std::size_t i = 0; i < time_points.size(); ++i) {
+        EXPECT_DOUBLE_EQ(std::get<0>(interpolated[i]), time_points[i]);
+        EXPECT_DOUBLE_EQ(std::get<1>(interpolated[i]), rate);
+    }
 }
