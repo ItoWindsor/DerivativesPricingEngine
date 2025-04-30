@@ -12,15 +12,15 @@ class Option : public Instrument{
       std::chrono::sys_days valuation_date,
       std::chrono::sys_days maturity_date,
       double strike,
-      double payoff,
+      std::function<double(double,double)>  payoff,
       ExerciseKind exercise_kind,
       bool is_path_dependent);
     double get_strike() const;
-    double get_payoff() const;
-    double get_exercise_kind() const;
+    std::function<double(double,double)> get_payoff() const;
+    ExerciseKind get_exercise_kind() const;
   private:
     double strike;
-    std::function<double(double)> payoff;
+    std::function<double(double,double)> payoff;
     ExerciseKind exerciseKind;
     bool isPathDependent;
 };

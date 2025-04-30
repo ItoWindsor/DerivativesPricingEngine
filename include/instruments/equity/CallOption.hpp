@@ -5,7 +5,14 @@
 #include "instruments/equity/Option.hpp"
 
 class CallOption : public Option{
-
+public : 
+  CallOption(
+      std::chrono::sys_days start_date, 
+      std::chrono::sys_days valuation_date,
+      std::chrono::sys_days maturity_date,
+      double strike,
+      ExerciseKind exercise_kind,
+      bool is_path_dependent);
 };
 
 
