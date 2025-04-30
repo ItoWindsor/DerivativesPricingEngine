@@ -8,7 +8,7 @@ class UnderlyingModel {
   public:
     UnderlyingModel(ModelName model_name);
     virtual ~UnderlyingModel() = default;
-    virtual void fit(const MarketData& market_data) = 0;
+    virtual void fit(const MarketData& market_data, const std::string& asset_name) = 0;
     ModelName get_model_name() const;
   private:
     ModelName model_name;
