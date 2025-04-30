@@ -89,3 +89,9 @@ std::vector<std::chrono::sys_days> generate_time_schedule(
 
   return vec_date; 
 }
+
+std::chrono::sys_days make_date(int year, unsigned int month, unsigned int day) {
+    return std::chrono::sys_days{
+        std::chrono::year{year} / std::chrono::month{month} / std::chrono::day{day}
+    };
+}

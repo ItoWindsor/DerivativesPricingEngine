@@ -19,3 +19,5 @@ std::chrono::year_month_day add_period(
 std::chrono::year_month_day subtract_period(
   const std::chrono::year_month_day& date,
   CompoundingFrequency freq);
+
+std::chrono::sys_days make_date(int year, unsigned int month, unsigned int day);
