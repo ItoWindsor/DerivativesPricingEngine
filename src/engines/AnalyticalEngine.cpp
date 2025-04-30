@@ -3,11 +3,26 @@
 #include "core/MarketData.hpp"
 #include "enums/CompoundingConvention.hpp"
 #include "enums/DayCountConvention.hpp"
+#include "models/BlackScholeModel.hpp"
 #include "utils/DayCount.hpp"
 #include "utils/CurveInterpolation.hpp"
+#include "instruments/equity/CallOption.hpp"
+#include "enums/ExerciseConvention.hpp"
+#include "enums/ModelNames.hpp"
 
 AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data)
     : market_data(std::move(market_data)) {}
+
+void AnalyticalEngine::set_model(std::shared_ptr<UnderlyingModel> model) {
+    this->model = std::move(model);
+}
+
+void AnalyticalEngine::set_market_data(std::shared_ptr<MarketData> market_data) {
+    this->market_data = std::move(market_data);
+    if (this->model) {
+        this->model->fit(*this->market_data);
+    }
+}
 
 double AnalyticalEngine::compute_price(const Bond& bond){
 
@@ -50,3 +65,39 @@ double AnalyticalEngine::compute_price(const Bond& bond){
 
   return price;
 }
+
+//double AnalyticalEngine::compute_price(const CallOption& call){
+//  if (call.get_exercise_kind() == ExerciseKind::American){
+//    std::cout << "not supported" << std::endl;
+//  }
+//  switch (this->model->get_model_name()) {
+//    case ModelName::BlackScholes : {
+//      auto bs = std::static_pointer_cast<BlackScholesModel>(model);
+//      double S =  bs->get_spot();
+//      double sigma = bs->get_sigma();
+//      double K = call.get_strike();
+//      double r = bs->get_interest_rate();
+//      
+//      double T = compute_year_fraction(
+//        call.get_valuation_date(),
+//        call.get_maturity_date(),
+//        call.get_day_convention());
+//
+//      double d1 = (std::log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * std::sqrt(T));
+//      double d2 = d1 - sigma * std::sqrt(T);
+//
+//      double Nd1 = 0.5 * (1 + std::erf(d1 / std::sqrt(2)));
+//      double Nd2 = 0.5 * (1 + std::erf(d2 / std::sqrt(2)));
+//
+//      return S * Nd1 - K * std::exp(-r * T) * Nd2;
+//    }
+//    case ModelName::Heston : {
+//      return 0.0;
+//    }
+//  }
+//}
+
+
+
+
+
