@@ -90,6 +90,59 @@ std::vector<std::chrono::sys_days> generate_time_schedule(
   return vec_date; 
 }
 
+
+std::vector<double> generate_time_schedule(
+  double start_date,
+  double end_date,
+  CompoundingFrequency compounding_frequency,
+  ShortSchedule short_schedule) 
+{
+  std::vector<double> schedule;
+
+  double step = 1.0;
+  switch (compounding_frequency) {
+    case CompoundingFrequency::anually: step = 1.0; break;
+    case CompoundingFrequency::semianually: step = 0.5; break;
+    case CompoundingFrequency::quarterly: step = 0.25; break;
+    case CompoundingFrequency::monthly: step = 1.0 / 12.0; break;
+    default: throw std::invalid_argument("Unsupported compounding frequency");
+  }
+
+  switch (short_schedule) {
+
+    case ShortSchedule::ShortStart: {
+      
+      std::vector<double> reversed;
+      double current = end_date;
+      while (current >= start_date + 1e-8) {
+        reversed.push_back(current);
+        current -= step;
+      }
+      if (std::abs(reversed.back() - start_date) > 1e-8) {
+        reversed.push_back(start_date);
+      }
+      std::reverse(reversed.begin(), reversed.end());
+      schedule = std::move(reversed);
+      break;
+    }
+
+    case ShortSchedule::ShortEnd: {
+      double current = start_date;
+      while (current <= end_date - 1e-8) {
+        schedule.push_back(current);
+        current += step;
+      }
+      if (std::abs(schedule.back() - end_date) > 1e-8) {
+        schedule.push_back(end_date);
+      }
+      break;
+    }
+  }
+
+  return schedule;
+}
+
+
 std::chrono::sys_days make_date(int year, unsigned int month, unsigned int day) {
     return std::chrono::sys_days{
         std::chrono::year{year} / std::chrono::month{month} / std::chrono::day{day}

@@ -21,46 +21,71 @@ void AnalyticalEngine::set_market_data(std::shared_ptr<MarketData> market_data) 
     this->market_data = std::move(market_data);
 }
 
-double AnalyticalEngine::compute_price(const Bond& bond){
-
-  std::vector<TupleDateDouble> curve_data = market_data->get_rate_curve()->get_curve_data();
+double AnalyticalEngine::compute_price(const Bond& bond) {
+  std::variant<std::vector<TupleDateDouble>, std::vector<std::tuple<double, double>>> curve_data = market_data->get_rate_curve()->get_curve_data();
   DayCountConvention day_convention = bond.get_day_convention(); 
   CompoundingMethod compounding_method = bond.get_compounding_method();
   CompoundingFrequency compounding_frequency = bond.get_compounding_frequency();
- 
-  std::chrono::sys_days valuation_date = bond.get_valuation_date();
-  std::chrono::sys_days maturity_date = bond.get_maturity_date();
- 
-  double valuation_time = compute_year_fraction(valuation_date, valuation_date, day_convention);
-  double maturity_time = compute_year_fraction(valuation_date, maturity_date, day_convention);
 
-  std::vector<double> bond_cashflow_time = compute_year_fraction(valuation_date,bond.get_vec_date_cashflows(), day_convention); 
-  std::vector<std::tuple<double,double>> curve_time_rate = compute_year_fraction(valuation_date, curve_data, day_convention);
-  std::vector<std::tuple<double,double>> interpolated_curve = interpolate_rate_curve(curve_time_rate,bond_cashflow_time);
+  std::variant<std::chrono::sys_days, double> start_date = bond.get_start_date();
+  std::variant<std::chrono::sys_days, double> valuation_date = bond.get_valuation_date();
+  std::variant<std::chrono::sys_days, double> maturity_date = bond.get_maturity_date();
 
-  double nominal = bond.get_nominal();
-  double spread = bond.get_spread();
-  double coupon_rate = bond.get_coupon_rate();
-  double price = 0.0;
+  // Check if we're using sys_days
+  if (std::holds_alternative<std::chrono::sys_days>(start_date) &&
+      std::holds_alternative<std::chrono::sys_days>(valuation_date) &&
+      std::holds_alternative<std::chrono::sys_days>(maturity_date)) {
 
-  for(auto [t, r] : interpolated_curve){
-  
-    if (t >= valuation_time || t <= maturity_time){
-    
-      double yield = spread + r;
-      double discount_factor = compute_discount_factor(yield, t, compounding_method, compounding_frequency);
-      
-      price += coupon_rate*nominal*discount_factor; 
-        
+      std::chrono::sys_days val = std::get<std::chrono::sys_days>(valuation_date);
+      std::chrono::sys_days mat = std::get<std::chrono::sys_days>(maturity_date);
 
-      if (t == std::get<0>(interpolated_curve.back()) ){
-          price += nominal*discount_factor;
-        }
-      
-    }
+      double valuation_time = compute_year_fraction(val, val, day_convention);
+      double maturity_time = compute_year_fraction(val, mat, day_convention);
+
+      auto cashflow_variant = bond.get_vec_futur_cashflows();  // stores the variant locally
+
+      const std::vector<std::chrono::sys_days>& cashflow_dates =
+          std::get<std::vector<std::chrono::sys_days>>(cashflow_variant);
+
+      std::vector<double> bond_cashflow_time = compute_year_fraction(val, cashflow_dates, day_convention);
+
+      std::vector<std::tuple<double, double>> curve_time_rate;
+
+      if (std::holds_alternative<std::vector<TupleDateDouble>>(curve_data)) {
+          const auto& curve = std::get<std::vector<TupleDateDouble>>(curve_data);
+          curve_time_rate = compute_year_fraction(val, curve, day_convention);
+      } else {
+          curve_time_rate = std::get<std::vector<std::tuple<double, double>>>(curve_data);
+      }
+
+      std::vector<std::tuple<double, double>> interpolated_curve = interpolate_rate_curve(curve_time_rate, bond_cashflow_time);
+
+      double nominal = bond.get_nominal();
+      double spread = bond.get_spread();
+      double coupon_rate = bond.get_coupon_rate();
+      double price = 0.0;
+
+      for (size_t i = 0; i < interpolated_curve.size(); ++i) {
+          auto [t, r] = interpolated_curve[i];
+
+          if (t >= valuation_time && t <= maturity_time) {
+              double yield = spread + r;
+              double discount_factor = compute_discount_factor(yield, t, compounding_method, compounding_frequency);
+
+              price += coupon_rate * nominal * discount_factor;
+
+              // Add nominal at maturity
+              if (i == interpolated_curve.size() - 1) {
+                  price += nominal * discount_factor;
+              }
+          }
+      }
+
+      return price;
+
+  } else {
+      throw std::runtime_error("Unsupported date format for bond valuation.");
   }
-
-  return price;
 }
 
 double AnalyticalEngine::compute_price(const CallOption& call){
@@ -77,10 +102,29 @@ std::cout << "not supported" << std::endl;
       double K = call.get_strike();
       double r = bs->get_interest_rate();
       
-      double T = compute_year_fraction(
-        call.get_valuation_date(),
-        call.get_maturity_date(),
-        call.get_day_convention());
+
+      std::variant<std::chrono::sys_days, double> valuation_date = call.get_valuation_date();
+      std::variant<std::chrono::sys_days, double> maturity_date = call.get_maturity_date();
+      double T;
+      
+      if (std::holds_alternative<std::chrono::sys_days>(valuation_date) &&
+          std::holds_alternative<std::chrono::sys_days>(maturity_date)) {
+
+        std::chrono::sys_days val = std::get<std::chrono::sys_days>(valuation_date);
+        std::chrono::sys_days mat = std::get<std::chrono::sys_days>(maturity_date);
+        T = compute_year_fraction(val, mat, call.get_day_convention());
+      }
+
+      else if (std::holds_alternative<double>(valuation_date) &&
+                 std::holds_alternative<double>(maturity_date)) {
+        double val = std::get<double>(valuation_date);
+        double mat = std::get<double>(maturity_date);
+        T = compute_year_fraction(val, mat); 
+      }
+
+      else {
+        throw std::runtime_error("Mismatched date types for valuation and maturity.");
+      }
 
       double d1 = (std::log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * std::sqrt(T));
       double d2 = d1 - sigma * std::sqrt(T);

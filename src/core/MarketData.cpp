@@ -1,4 +1,5 @@
 #include "core/MarketData.hpp"
+#include "core/InterestRateCurve.hpp"
 
 std::shared_ptr<InterestRateCurve> MarketData::get_rate_curve() const{
   return this->interestRateCurve;

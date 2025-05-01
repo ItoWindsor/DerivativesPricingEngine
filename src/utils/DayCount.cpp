@@ -21,6 +21,14 @@ double compute_year_fraction(
   }
 }
 
+
+double compute_year_fraction(
+  double start,
+  double end) {
+
+  return end - start;
+}
+
 std::vector<std::tuple<double,double>> compute_year_fraction(
   std::chrono::sys_days valuation_date,
   const std::vector<std::tuple<std::chrono::sys_days,double>>& curve_data,

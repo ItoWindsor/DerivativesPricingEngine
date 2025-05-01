@@ -10,15 +10,21 @@ Instrument::Instrument(
   )
   : startDate(start_date), valuationDate(valuation_date), maturityDate(maturity_date), dayCountConvention(dayCountConvention) {}
 
-std::chrono::sys_days Instrument::get_start_date() const{
+Instrument::Instrument(
+    double start_time,
+    double valuation_time,
+    double maturity_time)
+  : startDate(start_time), valuationDate(valuation_time), maturityDate(maturity_time), dayCountConvention(DayCountConvention::Actual) {}
+
+std::variant<std::chrono::sys_days,double> Instrument::get_start_date() const{
   return this->startDate;
 }
 
-std::chrono::sys_days Instrument::get_valuation_date() const{
+std::variant<std::chrono::sys_days,double> Instrument::get_valuation_date() const{
   return this->valuationDate;
 }
 
-std::chrono::sys_days Instrument::get_maturity_date() const{
+std::variant<std::chrono::sys_days,double> Instrument::get_maturity_date() const{
   return this->maturityDate;
 }
 

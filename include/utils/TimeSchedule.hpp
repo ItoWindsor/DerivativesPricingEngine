@@ -11,6 +11,14 @@ std::vector<std::chrono::sys_days> generate_time_schedule(
 );
 
 
+std::vector<double> generate_time_schedule(
+  double start_date,
+  double end_date,
+  CompoundingFrequency compounding_frequency,
+  ShortSchedule short_schedule
+);
+
+
 std::chrono::year_month_day add_period(
   const std::chrono::year_month_day& date,
   CompoundingFrequency freq);

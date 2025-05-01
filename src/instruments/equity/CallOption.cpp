@@ -9,3 +9,13 @@ CallOption::CallOption(
       ExerciseKind exercise_kind,
       bool is_path_dependent)
   : Option(start_date,valuation_date, maturity_date, strike, call_payoff, exercise_kind, is_path_dependent) {}
+
+
+CallOption::CallOption(
+  double start_time, 
+  double valuation_time,
+  double maturity_time,
+  double strike,
+  ExerciseKind exercise_kind,
+  bool is_path_dependent)
+  : Option(start_time,valuation_time, maturity_time, strike, call_payoff, exercise_kind, is_path_dependent) {}

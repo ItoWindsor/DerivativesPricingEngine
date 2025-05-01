@@ -13,6 +13,10 @@ double compute_year_fraction(
   DayCountConvention convention);
 
 
+double compute_year_fraction(
+ double start,
+ double end);
+
 std::vector<std::tuple<double,double>> compute_year_fraction(
   std::chrono::sys_days valuation_date,
   const std::vector<std::tuple<std::chrono::sys_days,double>>& curve_data,

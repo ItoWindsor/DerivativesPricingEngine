@@ -15,7 +15,17 @@ class Option : public Instrument{
       std::function<double(double,double)>  payoff,
       ExerciseKind exercise_kind,
       bool is_path_dependent);
-    double get_strike() const;
+    
+    Option(
+      double start_time, 
+      double valuation_time,
+      double maturity_time,
+      double strike,
+      std::function<double(double,double)>  payoff,
+      ExerciseKind exercise_kind,
+      bool is_path_dependent);
+    
+  double get_strike() const;
     std::function<double(double,double)> get_payoff() const;
     ExerciseKind get_exercise_kind() const;
   private:

@@ -14,17 +14,23 @@ class Instrument {
       std::chrono::sys_days valuation_date,
       std::chrono::sys_days maturity_date,
       DayCountConvention dayCountConvention = DayCountConvention::Actual365
-      );   
+      );
+
+    Instrument(
+      double start_time,
+      double valuation_time,
+      double maturity_time);
+
     std::string get_name();
 
-    std::chrono::sys_days get_start_date() const;
-    std::chrono::sys_days get_valuation_date() const;
-    std::chrono::sys_days get_maturity_date() const;
+    std::variant<std::chrono::sys_days,double> get_start_date() const;
+    std::variant<std::chrono::sys_days,double> get_valuation_date() const;
+    std::variant<std::chrono::sys_days,double> get_maturity_date() const;
     DayCountConvention get_day_convention() const;
   private:
-    std::chrono::sys_days startDate;
-    std::chrono::sys_days valuationDate;
-    std::chrono::sys_days maturityDate;
+    std::variant<std::chrono::sys_days,double> startDate;
+    std::variant<std::chrono::sys_days,double> valuationDate;
+    std::variant<std::chrono::sys_days,double> maturityDate;
     DayCountConvention dayCountConvention;
 };
 
