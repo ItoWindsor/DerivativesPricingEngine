@@ -121,3 +121,19 @@ TEST(FlatCurveTest, InterpolationReturnsFlatRate) {
         EXPECT_DOUBLE_EQ(std::get<1>(interpolated[i]), rate);
     }
 }
+
+
+TEST(FlatCurveTest, InterpolationReturnsFlatRate_double_time) {
+    double rate = 0.05;
+    double maturity_time = 5.0;
+
+    FlatCurve curve(0.0, maturity_time, rate);  
+    std::vector<double> time_points = {0.5, 1.0, 2.5, 5.0};
+    auto interpolated = curve.interpolate_curve(time_points);
+
+    ASSERT_EQ(interpolated.size(), time_points.size());
+    for (std::size_t i = 0; i < time_points.size(); ++i) {
+        EXPECT_DOUBLE_EQ(std::get<0>(interpolated[i]), time_points[i]);
+        EXPECT_DOUBLE_EQ(std::get<1>(interpolated[i]), rate);
+    }
+}
