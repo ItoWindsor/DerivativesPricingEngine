@@ -25,9 +25,10 @@ class Option : public Instrument{
       ExerciseKind exercise_kind,
       bool is_path_dependent);
     
-  double get_strike() const;
+    double get_strike() const;
     std::function<double(double,double)> get_payoff() const;
     ExerciseKind get_exercise_kind() const;
+    bool get_path_dependent() const;
   private:
     double strike;
     std::function<double(double,double)> payoff;

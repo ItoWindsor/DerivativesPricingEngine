@@ -36,3 +36,6 @@ ExerciseKind Option::get_exercise_kind() const{
   return this->exerciseKind;
 }
 
+bool Option::get_path_dependent() const{
+  return this->isPathDependent;
+}

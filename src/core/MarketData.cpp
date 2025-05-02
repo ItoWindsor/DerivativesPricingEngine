@@ -1,3 +1,4 @@
+#include <iostream>
 #include "core/MarketData.hpp"
 #include "core/InterestRateCurve.hpp"
 
@@ -11,7 +12,7 @@ void MarketData::load_interest_rate_curve(const std::string& filepath, std::chro
 }
 
 void MarketData::load_stock_prices(const std::string& filepath){
-
+  std::cout << filepath << std::endl;
 }
 
 void MarketData::load_stock_prices(const std::vector<std::tuple<std::string, double>>& stock_prices) {

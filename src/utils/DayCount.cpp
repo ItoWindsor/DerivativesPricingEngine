@@ -18,6 +18,8 @@ double compute_year_fraction(
           return static_cast<double>(days) / 360.0;
       case DayCountConvention::Actual365:
           return static_cast<double>(days) / 365.0;
+      case DayCountConvention::Actual:
+          return static_cast<double>(days);
   }
 }
 
