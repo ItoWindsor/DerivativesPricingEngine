@@ -39,7 +39,7 @@ DerivativesPricingEngine/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/ItoWindsor/CppLearn.git
+   git clone https://github.com/ItoWindsor/DerivativesPricingEngine.git
    cd CppLearn
    ```
 
