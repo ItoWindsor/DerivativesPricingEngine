@@ -90,7 +90,6 @@ double AnalyticalEngine::compute_price(const Bond& bond) {
 
 double AnalyticalEngine::compute_price(const CallOption& call){
 
-  this->model->fit(*(this->market_data), "AAPL");
   if (call.get_exercise_kind() == ExerciseKind::American){
 std::cout << "not supported" << std::endl;
   }
