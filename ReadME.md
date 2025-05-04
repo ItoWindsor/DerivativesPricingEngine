@@ -14,8 +14,43 @@ The goal is to create a **modular and extensible derivatives pricing library**, 
 - Get comfortable with CMake, Conan, and numerical programming in C++  
 - Have fun and build a small usable library! 
 
-1. Clone the repo:
+
+## 🛠️ Project Structure
+
+```
+DerivativesPricingEngine/
+├── src/
+│   ├── Instruments/         # Option and bond classes
+│   ├── Models/              # Black-Scholes, etc.
+│   ├── PricingEngines/      # Analytical, MonteCarlo and FiniteDifference pricing engine
+│   ├── Curves/              # Interest rate curves with interpolation
+│   ├── Utils/               # Date handling, CSV loading, payment schedule generation, etc.
+│   └── Core/                # Base interfaces and factories
+├── tests/                   # Unit tests using Google Test
+├── external/                # Conan-managed dependencies (e.g., Eigen)
+├── CMakeLists.txt           # CMake configuration
+├── conanfile.txt            # Conan dependencies
+└── build.sh                 # Convenience build script
+```
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/ItoWindsor/CppLearn.git
    cd CppLearn
+   ```
+
+2. **Build the project**:
+   ```bash
    ./build.sh
+   ```
+
+3. **Run the tests**:
+   ```bash
+   ./build/tests/RunAllTests
+   ```
+
+---
