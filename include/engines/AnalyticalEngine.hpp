@@ -2,6 +2,7 @@
 #define ANALYTICALENGINE_HPP
 
 #include <memory>
+#include <unordered_map>
 #include "core/MarketData.hpp"
 #include "core/Instrument.hpp"
 #include "core/UnderlyingModel.hpp"
@@ -19,7 +20,7 @@ class AnalyticalEngine {
     void set_market_data(std::shared_ptr<MarketData> market_data);
     double compute_price(const Bond& bond);
     double compute_price(const CallOption& call);
-    double compute_sensitiviies(const Instrument& instrument);
+    std::unordered_map<std::string, double> compute_sensitiviies(const CallOption& call);
   private:
     std::shared_ptr<MarketData> market_data;
     std::shared_ptr<UnderlyingModel> model;

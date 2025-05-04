@@ -1,4 +1,5 @@
 #include <chrono>
+#include <unordered_map>
 #include "engines/AnalyticalEngine.hpp"
 #include "core/MarketData.hpp"
 #include "enums/CompoundingConvention.hpp"
@@ -9,6 +10,7 @@
 #include "instruments/equity/CallOption.hpp"
 #include "enums/ExerciseConvention.hpp"
 #include "enums/ModelNames.hpp"
+#include "utils/AnalyticalFormulas.hpp"
 
 AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data)
     : market_data(std::move(market_data)) {}
@@ -104,42 +106,33 @@ std::cout << "not supported" << std::endl;
 
       std::variant<std::chrono::sys_days, double> valuation_date = call.get_valuation_date();
       std::variant<std::chrono::sys_days, double> maturity_date = call.get_maturity_date();
-      double T;
+      double tau;
       
       if (std::holds_alternative<std::chrono::sys_days>(valuation_date) &&
           std::holds_alternative<std::chrono::sys_days>(maturity_date)) {
 
         std::chrono::sys_days val = std::get<std::chrono::sys_days>(valuation_date);
         std::chrono::sys_days mat = std::get<std::chrono::sys_days>(maturity_date);
-        T = compute_year_fraction(val, mat, call.get_day_convention());
+        tau = compute_year_fraction(val, mat, call.get_day_convention());
       }
 
       else if (std::holds_alternative<double>(valuation_date) &&
                  std::holds_alternative<double>(maturity_date)) {
         double val = std::get<double>(valuation_date);
         double mat = std::get<double>(maturity_date);
-        T = compute_year_fraction(val, mat); 
+        tau = compute_year_fraction(val, mat); 
       }
 
       else {
         throw std::runtime_error("Mismatched date types for valuation and maturity.");
       }
 
-      double d1 = (std::log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * std::sqrt(T));
-      double d2 = d1 - sigma * std::sqrt(T);
-
-      double Nd1 = 0.5 * (1 + std::erf(d1 / std::sqrt(2)));
-      double Nd2 = 0.5 * (1 + std::erf(d2 / std::sqrt(2)));
-
-      return S * Nd1 - K * std::exp(-r * T) * Nd2;
+      double price = compute_bs_call_price(S,K,tau,sigma,r);
+      return price;
     }
     case ModelName::Heston : {
       return 0.0;
     }
   }
 }
-
-
-
-
 
