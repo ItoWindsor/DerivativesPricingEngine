@@ -9,6 +9,8 @@ class MarketData {
     MarketData() = default;
     void load_interest_rate_curve(const std::string& filepath, std::chrono::sys_days valuation_date);
     void load_stock_prices(const std::string& filepath);
+    void load_stock(double spot_, double sigma_);
+    void load_stock(const std::string& filepath);
     void load_stock_prices(const std::vector<std::tuple<std::string, double>>& stock_prices);
     std::shared_ptr<InterestRateCurve> get_rate_curve() const;
     std::unordered_map<std::string, double> get_stock_prices() const;
