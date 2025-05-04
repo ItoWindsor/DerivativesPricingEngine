@@ -40,7 +40,7 @@ DerivativesPricingEngine/
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/ItoWindsor/DerivativesPricingEngine.git
-   cd CppLearn
+   cd DerivativesPricingEngine
    ```
 
 2. **Build the project**:
@@ -48,9 +48,8 @@ DerivativesPricingEngine/
    ./build.sh
    ```
 
-3. **Run the tests**:
+3. **Run the main**:
    ```bash
-   ./build/tests/RunAllTests
+   ./build/debug/dpe_main
    ```
-
 ---
