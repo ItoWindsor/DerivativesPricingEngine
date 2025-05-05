@@ -1,17 +1,6 @@
-#include <chrono>
-#include <unordered_map>
-#include "engines/AnalyticalEngine.hpp"
+#include <memory>
 #include "core/MarketData.hpp"
-#include "enums/CompoundingConvention.hpp"
-#include "enums/DayCountConvention.hpp"
-#include "models/BlackScholeModel.hpp"
-#include "utils/DayCount.hpp"
-#include "utils/CurveInterpolation.hpp"
-#include "instruments/equity/CallOption.hpp"
-#include "enums/ExerciseConvention.hpp"
-#include "enums/ModelNames.hpp"
-#include "utils/AnalyticalFormulas.hpp"
-
+#include "core/PricingEngine.hpp"
 
 PricingEngine::PricingEngine(std::shared_ptr<MarketData> market_data)
     : market_data(std::move(market_data)) {}
