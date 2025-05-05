@@ -1,5 +1,5 @@
 #include <chrono>
-#include "instruments/Bond.hpp"
+#include "instruments/interest_rates/Bond.hpp"
 #include "enums/CompoundingConvention.hpp"
 #include "enums/DayCountConvention.hpp"
 #include "utils/TimeSchedule.hpp"
