@@ -1,18 +1,22 @@
 #ifndef PRICINGENGINE_HPP
 #define PRICINGENGINE_HPP
 
-#include "core/MarketData.hpp"
 #include <memory>
-
-class Instrument;
-class Model;
+#include "core/MarketData.hpp"
+#include "core/Instrument.hpp"
+#include "core/UnderlyingModel.hpp"
 
 class PricingEngine {
   public:
+    PricingEngine() = default;
+    PricingEngine(std::shared_ptr<MarketData> market_data);
+    PricingEngine(std::shared_ptr<MarketData> market_data, std::shared_ptr<UnderlyingModel> underlying_model);
     virtual ~PricingEngine() = default;
-    virtual void set_model(std::shared_ptr<Model> model) = 0;
-    virtual void set_market_data(std::shared_ptr<MarketData> market_data) = 0;
-    virtual double compute(const Instrument& instrument) const = 0;
+    void set_model(std::shared_ptr<UnderlyingModel> model);
+    void set_market_data(std::shared_ptr<MarketData> market_data);
+  protected:
+    std::shared_ptr<MarketData> market_data;
+    std::shared_ptr<UnderlyingModel> model;
 };
 
 #endif

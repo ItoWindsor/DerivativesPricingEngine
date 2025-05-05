@@ -13,17 +13,12 @@
 #include "utils/AnalyticalFormulas.hpp"
 
 AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data)
-    : market_data(std::move(market_data)) {}
+    : PricingEngine(std::move(market_data)) {}
 
-void AnalyticalEngine::set_model(std::shared_ptr<UnderlyingModel> ptr_model) {
-    this->model = std::move(ptr_model);
-}
+AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data, std::shared_ptr<UnderlyingModel> model)
+    : PricingEngine(std::move(market_data), std::move(model)) {}
 
-void AnalyticalEngine::set_market_data(std::shared_ptr<MarketData> ptr_market_data) {
-    this->market_data = std::move(ptr_market_data);
-}
-
-double AnalyticalEngine::compute_price(const Bond& bond) {
+double AnalyticalEngine::compute_price(const Bond& bond) const{
   std::variant<std::vector<TupleDateDouble>, std::vector<std::tuple<double, double>>> curve_data = market_data->get_rate_curve()->get_curve_data();
   DayCountConvention day_convention = bond.get_day_convention(); 
   CompoundingMethod compounding_method = bond.get_compounding_method();
@@ -90,7 +85,7 @@ double AnalyticalEngine::compute_price(const Bond& bond) {
   }
 }
 
-double AnalyticalEngine::compute_price(const CallOption& call){
+double AnalyticalEngine::compute_price(const CallOption& call) const{
 
   if (call.get_exercise_kind() == ExerciseKind::American){
 std::cout << "not supported" << std::endl;

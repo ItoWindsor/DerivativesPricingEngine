@@ -3,27 +3,22 @@
 
 #include <memory>
 #include <unordered_map>
+#include "core/PricingEngine.hpp"
 #include "core/MarketData.hpp"
 #include "core/Instrument.hpp"
 #include "core/UnderlyingModel.hpp"
 #include "instruments/Bond.hpp"
 #include "instruments/equity/CallOption.hpp"
 
-class AnalyticalEngine {
+class AnalyticalEngine : public PricingEngine{
   
   public:
     AnalyticalEngine() = default;
     AnalyticalEngine(std::shared_ptr<MarketData> market_data);
-    AnalyticalEngine(std::shared_ptr<MarketData> market_date, UnderlyingModel underlying_model);
-    
-    void set_model(std::shared_ptr<UnderlyingModel> model);
-    void set_market_data(std::shared_ptr<MarketData> market_data);
-    double compute_price(const Bond& bond);
-    double compute_price(const CallOption& call);
+    AnalyticalEngine(std::shared_ptr<MarketData> market_data, std::shared_ptr<UnderlyingModel> underlying_model);
+    double compute_price(const Bond& bond) const;
+    double compute_price(const CallOption& call) const;
     std::unordered_map<std::string, double> compute_sensitiviies(const CallOption& call);
-  private:
-    std::shared_ptr<MarketData> market_data;
-    std::shared_ptr<UnderlyingModel> model;
 };
 
 #endif
