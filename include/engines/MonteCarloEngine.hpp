@@ -4,19 +4,22 @@
 #include <memory>
 #include <unordered_map>
 #include "core/Instrument.hpp"
+#include "core/PricingEngine.hpp"
 #include "core/UnderlyingModel.hpp"
-#include "instruments/Bond.hpp"
 #include "instruments/equity/Option.hpp"
 #include "structs/OptionPriceResult.hpp"
 
-class MonteCarloEngine{
+class MonteCarloEngine : public PricingEngine{
   public:
     MonteCarloEngine() = default;
+    MonteCarloEngine(int n_sim, int n_step);
     MonteCarloEngine(std::shared_ptr<MarketData> market_data);
     MonteCarloEngine(std::shared_ptr<MarketData> market_data, std::shared_ptr<UnderlyingModel> underlying_model);
-    OptionPriceResult compute_price(const Option& option);
+    OptionPriceResult compute_price(const Option& option) const;
     void set_n_simulation(int n_sim);
     void set_n_steps(int n_step);
+
+    int get_n_sim() const;
   private:
     int n_simulation;
     int n_steps;
