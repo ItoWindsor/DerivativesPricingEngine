@@ -3,7 +3,6 @@
 #include "enums/DayCountConvention.hpp"
 #include "enums/ModelNames.hpp"
 #include "utils/DayCount.hpp"
-#include "utils/DayCount.hpp"
 #include "models/BlackScholeModel.hpp"
 #include "utils/Simulation.hpp"
 
