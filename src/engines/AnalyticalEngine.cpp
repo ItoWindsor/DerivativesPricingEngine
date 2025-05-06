@@ -1,4 +1,5 @@
 #include <chrono>
+#include <memory>
 #include <unordered_map>
 #include "engines/AnalyticalEngine.hpp"
 #include "core/MarketData.hpp"
@@ -13,10 +14,10 @@
 #include "utils/AnalyticalFormulas.hpp"
 
 AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data)
-    : PricingEngine(std::move(market_data)) {}
+  : PricingEngine(market_data) {}
 
-AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data, std::shared_ptr<UnderlyingModel> model)
-    : PricingEngine(std::move(market_data), std::move(model)) {}
+AnalyticalEngine::AnalyticalEngine(std::shared_ptr<MarketData> market_data, std::shared_ptr<UnderlyingModel> underlying_model)
+  : PricingEngine(market_data,underlying_model) {}
 
 double AnalyticalEngine::compute_price(const Bond& bond) const{
   std::variant<std::vector<TupleDateDouble>, std::vector<std::tuple<double, double>>> curve_data = market_data->get_rate_curve()->get_curve_data();
