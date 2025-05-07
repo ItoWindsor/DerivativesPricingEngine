@@ -7,7 +7,7 @@
 #include "core/MarketData.hpp"
 #include "core/Instrument.hpp"
 #include "core/UnderlyingModel.hpp"
-#include "instruments/Bond.hpp"
+#include "instruments/interest_rates/Bond.hpp"
 #include "instruments/equity/CallOption.hpp"
 
 class AnalyticalEngine : public PricingEngine{

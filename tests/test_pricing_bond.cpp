@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "instruments/Bond.hpp"
+#include "instruments/interest_rates/Bond.hpp"
 #include "core/MarketData.hpp"
 #include "engines/AnalyticalEngine.hpp"
 #include "enums/CompoundingConvention.hpp"

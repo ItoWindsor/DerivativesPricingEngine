@@ -3,7 +3,7 @@
 #include "core/MarketData.hpp"
 #include "enums/CompoundingConvention.hpp"
 #include "enums/DayCountConvention.hpp"
-#include "instruments/Bond.hpp"
+#include "instruments/interest_rates/Bond.hpp"
 #include "instruments/equity/CallOption.hpp"
 #include "engines/AnalyticalEngine.hpp"
 #include "models/BlackScholeModel.hpp"
