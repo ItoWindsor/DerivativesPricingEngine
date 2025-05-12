@@ -23,8 +23,8 @@ class BinomialTreeEngine : public PricingEngine{
     int get_n_steps() const;
     TreeModel get_tree_model() const;
 
-    std::tuple<double,double> generate_proba_tree() const;
-    std::tuple<double,double> generate_up_down_tree() const;
+    std::tuple<double,double> generate_proba_tree(double T) const;
+    std::tuple<double,double> generate_up_down_tree(double T) const;
   private:
     int n_steps;
     TreeModel tree_model; 
