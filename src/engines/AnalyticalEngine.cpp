@@ -37,8 +37,7 @@ double AnalyticalEngine::compute_price(const Bond& bond) const{
       std::chrono::sys_days val = std::get<std::chrono::sys_days>(valuation_date);
       std::chrono::sys_days mat = std::get<std::chrono::sys_days>(maturity_date);
 
-      double valuation_time = compute_year_fraction(val, val, day_convention);
-      double maturity_time = compute_year_fraction(val, mat, day_convention);
+      auto [valuation_time, maturity_time] = from_date_to_double(val, mat, day_convention);
 
       auto cashflow_variant = bond.get_vec_futur_cashflows();  // stores the variant locally
 

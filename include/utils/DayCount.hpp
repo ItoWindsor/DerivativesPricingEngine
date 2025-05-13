@@ -36,3 +36,7 @@ double compute_discount_factor(
 
 #endif
 
+std::tuple<double, double> from_date_to_double(
+  std::chrono::sys_days valuation_date,
+  std::chrono::sys_days maturity_date,
+  DayCountConvention day_convention);

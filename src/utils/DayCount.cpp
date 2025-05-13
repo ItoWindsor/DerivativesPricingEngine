@@ -93,3 +93,14 @@ double compute_discount_factor(
 
   return df;
 }
+
+std::tuple<double, double> from_date_to_double(
+  std::chrono::sys_days valuation_date,
+  std::chrono::sys_days maturity_date,
+  DayCountConvention day_convention){
+  
+  double valuation_time = compute_year_fraction(valuation_date, valuation_date, day_convention);
+  double maturity_time = compute_year_fraction(valuation_date, maturity_date, day_convention);
+
+  return std::make_tuple(valuation_time, maturity_time);
+}
