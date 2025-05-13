@@ -1,10 +1,13 @@
+#include <iostream>
 #include "engines/BinomialTreeEngine.hpp"
 #include "core/UnderlyingModel.hpp"
 #include "enums/DayCountConvention.hpp"
+#include "enums/ExerciseConvention.hpp"
 #include "enums/ModelNames.hpp"
 #include "utils/DayCount.hpp"
 #include "models/BlackScholeModel.hpp"
 #include "enums/TreeModel.hpp"
+#include <memory>
 #include <tuple>
 
 BinomialTreeEngine::BinomialTreeEngine(std::shared_ptr<MarketData> market_data)
@@ -36,13 +39,11 @@ std::tuple<double,double> BinomialTreeEngine::generate_proba_tree(double T) cons
       auto bs = std::static_pointer_cast<BlackScholesModel>(model);
       switch (this->get_tree_model()) {
         case TreeModel::CoxRossRubinstein : {
-          // TODO 
-          std::tuple<double,double> probas = this->generate_up_down_tree(T);
-          double u = std::get<0>(probas);
-          double d = std::get<1>(probas);
+
+          auto [u,d] = this->generate_up_down_tree(T);
           double r = bs->get_interest_rate();
 
-          pu =( std::exp(r*std::sqrt(step) - d))/(u-d);
+          pu = (std::exp(r*step) - d)/(u-d);
           pd = 1.0 - pu;
           return std::make_tuple(pu,pd);
         }
@@ -97,3 +98,108 @@ std::tuple<double,double> BinomialTreeEngine::generate_up_down_tree(double T) co
       }
   }
 }
+
+Eigen::MatrixXd BinomialTreeEngine::generate_tree_mat(double T) const{
+
+  switch(this->model->get_model_name()){
+    
+    case ModelName::BlackScholes : {
+      auto bs = std::static_pointer_cast<BlackScholesModel>(model);
+      
+      std::tuple<double,double> movements = this->generate_up_down_tree(T);
+      double u = std::get<0>(movements);
+      double d = std::get<1>(movements);
+      double S0 = bs->get_spot();
+      
+      Eigen::MatrixXd mat_movements = Eigen::MatrixXd::Zero(this->n_steps + 1, this->n_steps + 1);
+      
+      for(int j = 0; j < this->n_steps +1 ; ++j) {
+        for(int i = 0; i < j+1 ; ++i){
+          mat_movements(i,j) = S0*std::pow(u,j-i)*std::pow(d,i);
+        }
+      }
+      return mat_movements;
+    }
+    case ModelName::Heston : {
+      return Eigen::MatrixXd::Zero(this->n_steps + 1, this->n_steps + 1); 
+    }
+  }
+}
+
+double BinomialTreeEngine::compute_price(const Option& option) const{
+  double price = 0.0;
+  auto payoff_option = option.get_payoff();
+
+  switch (this->model->get_model_name()){
+    case ModelName::BlackScholes : {
+      auto bs = std::static_pointer_cast<BlackScholesModel>(model);
+      double K = option.get_strike();
+      double r = bs->get_interest_rate();
+      
+      std::variant<std::chrono::sys_days, double> valuation_date = option.get_valuation_date();
+      std::variant<std::chrono::sys_days, double> maturity_date = option.get_maturity_date();
+      double tau;
+      
+      if (std::holds_alternative<std::chrono::sys_days>(valuation_date) &&
+          std::holds_alternative<std::chrono::sys_days>(maturity_date)) {
+
+        std::chrono::sys_days val = std::get<std::chrono::sys_days>(valuation_date);
+        std::chrono::sys_days mat = std::get<std::chrono::sys_days>(maturity_date);
+        tau = compute_year_fraction(val, mat, option.get_day_convention());
+      }
+
+      else if (std::holds_alternative<double>(valuation_date) &&
+                 std::holds_alternative<double>(maturity_date)) {
+        double val = std::get<double>(valuation_date);
+        double mat = std::get<double>(maturity_date);
+        tau = compute_year_fraction(val, mat); 
+      }
+
+      else {
+        throw std::runtime_error("Mismatched date types for valuation and maturity.");
+      }
+      
+      double step = tau/this->get_n_steps();
+      double df = std::exp(- r * step);
+
+      Eigen::MatrixXd stock_mat = this->generate_tree_mat(tau);
+      auto [pu,pd] = this->generate_proba_tree(tau);
+      Eigen::MatrixXd option_mat = Eigen::MatrixXd::Zero(this->n_steps+1, this->n_steps+1);
+
+      for(int j = this->n_steps; j >= 0; --j){
+        for(int i = 0; i <= j; ++i){
+
+          if (j == this->n_steps){
+            option_mat(i,j) = payoff_option(stock_mat(i,j), K);
+          }
+
+          else{
+            double continuation_value = (pu * option_mat(i, j + 1) + pd * option_mat(i + 1, j + 1));
+
+            switch(option.get_exercise_kind()){
+
+              case ExerciseKind::American : {
+                option_mat(i,j) = df * std::max(continuation_value, payoff_option(stock_mat(i,j), K));
+                break;
+              }
+
+              case ExerciseKind::European : {
+                option_mat(i,j) = df * continuation_value;
+                break;
+              }
+
+            }
+
+          }
+        }
+      }
+      price = option_mat(0,0);
+      break;
+    }
+    case ModelName::Heston : {
+      break;
+    }
+  }
+  return price;
+} 
+

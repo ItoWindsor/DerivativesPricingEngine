@@ -2,11 +2,13 @@
 #define BINOMIALTREEENGINE_HPP
 
 #include <memory>
+#include <Eigen/Dense>
 #include "core/Instrument.hpp"
 #include "core/PricingEngine.hpp"
 #include "core/UnderlyingModel.hpp"
 #include "instruments/equity/Option.hpp"
 #include "enums/TreeModel.hpp"
+
 
 class BinomialTreeEngine : public PricingEngine{
   public:
@@ -25,6 +27,7 @@ class BinomialTreeEngine : public PricingEngine{
 
     std::tuple<double,double> generate_proba_tree(double T) const;
     std::tuple<double,double> generate_up_down_tree(double T) const;
+    Eigen::MatrixXd generate_tree_mat(double T) const;
   private:
     int n_steps;
     TreeModel tree_model; 
