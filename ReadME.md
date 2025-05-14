@@ -19,30 +19,30 @@ The goal is to create a **modular and extensible derivatives pricing library**, 
 
 ```
 DerivativesPricingEngine/
-├── src/                        # Main source code
-│   ├── core/                   # Core abstractions and interfaces
+├── src/                                    # Main source code
+│   ├── core/                               # Core abstractions and interfaces
 │   │   ├── Instrument.cpp
 │   │   ├── InterestRateCurve.cpp
 │   │   ├── MarketData.cpp
 │   │   ├── PricingEngine.cpp
 │   │   └── UnderlyingModel.cpp
-│   ├── curves/                 # Interest rate curve implementations
+│   ├── curves/                             # Interest rate curve implementations
 │   │   └── FlatCurve.cpp
-│   ├── engines/                # Pricing engines
+│   ├── engines/                            # Pricing engines
 │   │   ├── AnalyticalEngine.cpp
 │   │   ├── BinomialTreeEngine.cpp
 │   │   ├── FiniteDifferenceEngine.cpp
 │   │   └── MonteCarloEngine.cpp
-│   ├── instruments/            # Financial instruments
+│   ├── instruments/                        # Financial instruments
 │   │   ├── equity/
 │   │   │   ├── Option.cpp
 │   │   │   └── CallOption.cpp
 │   │   └── interest_rates/
 │   │       ├── Bond.cpp
 │   │       └── Swap.cpp
-│   ├── models/                 # Underlying stochastic models
+│   ├── models/                             # Underlying stochastic models
 │   │   └── BlackScholeModel.cpp
-│   └── utils/                  # Utility functions and helpers
+│   └── utils/                              # Utility functions and helpers
 │       ├── AnalyticalFormulas.cpp
 │       ├── CurveInterpolation.cpp
 │       ├── DayCount.cpp
@@ -50,14 +50,14 @@ DerivativesPricingEngine/
 │       ├── Simulation.cpp
 │       ├── TimeSchedule.cpp
 │       └── UsualPayoffs.cpp
-├── external/                   # Third-party libraries and Conan dependencies
-├── tests/                      # Unit tests
+├── external/                               # Third-party libraries and Conan dependencies
+├── tests/                                  # Unit tests
 │   ├── test_black_scholes_analytical.cpp
 │   └── test_black_scholes_binomial_tree.cpp
-├── CMakeLists.txt              # CMake build configuration
-├── conanfile.txt               # Conan dependencies
-├── build.sh                    # Build script
-└── README.md                   # Project documentation
+├── CMakeLists.txt                          # CMake build configuration
+├── conanfile.txt                           # Conan dependencies
+├── build.sh                                # Build script
+└── README.md                               # Project documentation
 ```
 
 ---
