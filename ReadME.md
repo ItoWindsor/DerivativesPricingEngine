@@ -19,18 +19,45 @@ The goal is to create a **modular and extensible derivatives pricing library**, 
 
 ```
 DerivativesPricingEngine/
-├── src/
-│   ├── Instruments/         # Option and bond classes
-│   ├── Models/              # Black-Scholes, etc.
-│   ├── PricingEngines/      # Analytical, MonteCarlo and FiniteDifference pricing engine
-│   ├── Curves/              # Interest rate curves with interpolation
-│   ├── Utils/               # Date handling, CSV loading, payment schedule generation, etc.
-│   └── Core/                # Base interfaces and factories
-├── tests/                   # Unit tests using Google Test
-├── external/                # Conan-managed dependencies (e.g., Eigen)
-├── CMakeLists.txt           # CMake configuration
-├── conanfile.txt            # Conan dependencies
-└── build.sh                 # Convenience build script
+├── src/                        # Main source code
+│   ├── core/                   # Core abstractions and interfaces
+│   │   ├── Instrument.cpp
+│   │   ├── InterestRateCurve.cpp
+│   │   ├── MarketData.cpp
+│   │   ├── PricingEngine.cpp
+│   │   └── UnderlyingModel.cpp
+│   ├── curves/                 # Interest rate curve implementations
+│   │   └── FlatCurve.cpp
+│   ├── engines/                # Pricing engines
+│   │   ├── AnalyticalEngine.cpp
+│   │   ├── BinomialTreeEngine.cpp
+│   │   ├── FiniteDifferenceEngine.cpp
+│   │   └── MonteCarloEngine.cpp
+│   ├── instruments/            # Financial instruments
+│   │   ├── equity/
+│   │   │   ├── Option.cpp
+│   │   │   └── CallOption.cpp
+│   │   └── interest_rates/
+│   │       ├── Bond.cpp
+│   │       └── Swap.cpp
+│   ├── models/                 # Underlying stochastic models
+│   │   └── BlackScholeModel.cpp
+│   └── utils/                  # Utility functions and helpers
+│       ├── AnalyticalFormulas.cpp
+│       ├── CurveInterpolation.cpp
+│       ├── DayCount.cpp
+│       ├── EnumToString.cpp
+│       ├── Simulation.cpp
+│       ├── TimeSchedule.cpp
+│       └── UsualPayoffs.cpp
+├── external/                   # Third-party libraries and Conan dependencies
+├── tests/                      # Unit tests
+│   ├── test_black_scholes_analytical.cpp
+│   └── test_black_scholes_binomial_tree.cpp
+├── CMakeLists.txt              # CMake build configuration
+├── conanfile.txt               # Conan dependencies
+├── build.sh                    # Build script
+└── README.md                   # Project documentation
 ```
 
 ---
