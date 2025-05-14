@@ -1,7 +1,5 @@
-#include <iostream>
 #include "engines/BinomialTreeEngine.hpp"
 #include "core/UnderlyingModel.hpp"
-#include "enums/DayCountConvention.hpp"
 #include "enums/ExerciseConvention.hpp"
 #include "enums/ModelNames.hpp"
 #include "utils/DayCount.hpp"
