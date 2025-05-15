@@ -1,6 +1,7 @@
 #include <random>
 #include <Eigen/Dense>
 #include <numeric>
+#include <cmath>
 #include "utils/Simulation.hpp"
 
 
@@ -48,6 +49,18 @@ Eigen::VectorXd simulate_geometrical_brownian_terminal_distribution(double S, do
     vec_random[i] = S*std::exp( std::pow(r - (0.5 * sigma*sigma),2)*std::sqrt(T) + sigma*vec_random[i]); 
   }
   return vec_random;
+}
+
+Eigen::MatrixXd simulate_geometrical_brownian_paths(double S, double T, double r, double sigma, int n_sim, int n_time) {
+    Eigen::MatrixXd brownian = simulate_brownian_paths(T, n_time, n_sim);  
+
+    Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(n_time + 1, 0.0, T);
+
+    Eigen::VectorXd drift = (r - 0.5 * sigma * sigma) * t;
+
+    Eigen::MatrixXd stock_mat = (drift.transpose().replicate(n_sim, 1) + sigma * brownian).array().exp();
+    
+    return S * stock_mat.array();  
 }
 
 std::tuple<double, double> compute_confidence_interval(Eigen::VectorXd results, double z_score) {
