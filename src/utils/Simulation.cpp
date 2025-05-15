@@ -54,13 +54,13 @@ Eigen::VectorXd simulate_geometrical_brownian_terminal_distribution(double S, do
 Eigen::MatrixXd simulate_geometrical_brownian_paths(double S, double T, double r, double sigma, int n_sim, int n_time) {
     Eigen::MatrixXd brownian = simulate_brownian_paths(T, n_time, n_sim);  
 
-    Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(n_time + 1, 0.0, T);
+    Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(n_time + 1, 0.0, T);    
+    Eigen::VectorXd drift = (r - 0.5 * sigma * sigma) * t;                 
 
-    Eigen::VectorXd drift = (r - 0.5 * sigma * sigma) * t;
+    Eigen::MatrixXd exponent = sigma * brownian;                           
+    exponent.rowwise() += drift.transpose();                               
 
-    Eigen::MatrixXd stock_mat = (drift.transpose().replicate(n_sim, 1) + sigma * brownian).array().exp();
-    
-    return S * stock_mat.array();  
+    return S * exponent.array().exp().matrix();                            
 }
 
 std::tuple<double, double> compute_confidence_interval(Eigen::VectorXd results, double z_score) {
