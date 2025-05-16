@@ -172,17 +172,17 @@ double BinomialTreeEngine::compute_price(const Option& option) const{
           }
 
           else{
-            double continuation_value = (pu * option_mat(i, j + 1) + pd * option_mat(i + 1, j + 1));
+            double continuation_value = df * (pu * option_mat(i, j + 1) + pd * option_mat(i + 1, j + 1));
 
             switch(option.get_exercise_kind()){
 
               case ExerciseKind::American : {
-                option_mat(i,j) = df * std::max(continuation_value, payoff_option(stock_mat(i,j), K));
+                option_mat(i,j) = std::max(continuation_value, payoff_option(stock_mat(i,j), K));
                 break;
               }
 
               case ExerciseKind::European : {
-                option_mat(i,j) = df * continuation_value;
+                option_mat(i,j) = continuation_value;
                 break;
               }
 
