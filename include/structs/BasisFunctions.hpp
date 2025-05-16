@@ -17,5 +17,7 @@ struct BasisFunctions {
     size_t size() const;
 };
 
+BasisFunctions make_polynomial_basis(int degree);
+BasisFunctions make_laguerre_basis(int degree);
 
 #endif
