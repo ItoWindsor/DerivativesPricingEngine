@@ -18,6 +18,7 @@ include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 # Find dependencies
 find_package(Eigen3 REQUIRED)
 find_package(GTest REQUIRED)
+find_package(Crow REQUIRED)
 
 # Set up directories
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)

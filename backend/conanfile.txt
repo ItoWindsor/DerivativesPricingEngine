@@ -1,6 +1,7 @@
 [requires]
 eigen/3.4.0
 gtest/1.14.0
+crowcpp-crow/1.2.0
 
 [generators]
 CMakeDeps
