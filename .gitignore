@@ -1,6 +1,6 @@
 # python
 /frontend/.venv/
-/frontend/__pycache__/
+**/__pycache__/
 
 # Mac stuff
 .DS_Store
@@ -12,7 +12,7 @@
 external/
 
 .cache/
-build/
+backend/build/
 
 # CMake build files
 CMakeUserPresets.json
