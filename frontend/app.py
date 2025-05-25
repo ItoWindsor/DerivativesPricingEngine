@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 
 from src import utils
-from src.enums.enums_products import ImplementedInterestRatesProducts, ImplementerEquityProducts
+from src.enums.enums_products import ImplementedInterestRatesProducts, ImplementedEquityProducts
 from src.callbacks import register_callbacks
 
 app = Dash(__name__)
@@ -14,7 +14,7 @@ CURVE_FOLDER = "backend/data/interest_rate_curves"
 
 # Generate dropdown options from Enums
 interest_rate_options = [{"label": prod.name.title(), "value": prod.name} for prod in ImplementedInterestRatesProducts]
-equity_options = [{"label": prod.name.title(), "value": prod.name} for prod in ImplementerEquityProducts]
+equity_options = [{"label": prod.name.title(), "value": prod.name} for prod in ImplementedEquityProducts]
 all_product_options = interest_rate_options + equity_options
 
 # Define layout
