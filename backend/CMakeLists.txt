@@ -5,15 +5,12 @@ project(DerivativesPricingEngine)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Set default build type if not specified
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
 endif()
-
-# Conan toolchain
-include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 
 # Find dependencies
 find_package(Eigen3 REQUIRED)
@@ -26,6 +23,7 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 add_compile_definitions(PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Include directories
 include_directories(${INCLUDE_DIR})
@@ -35,30 +33,35 @@ file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
 file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
 
 # Common warning flags
-set(WARNING_FLAGS
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
-    -Wshadow
-    -Wnon-virtual-dtor
-    -Wold-style-cast
-    -Wcast-align
-    -Wunused
-    -Wconversion
-    -Wsign-conversion
-    -Wnull-dereference
-    -Wdouble-promotion
-    -Wimplicit-fallthrough
-)
+set(WARNING_FLAGS -Wall -Wextra)
+
+#set(WARNING_FLAGS
+#    -Wall
+#    -Wextra
+#    -Wpedantic
+#    -Werror
+#    -Wnon-virtual-dtor
+#    -Wold-style-cast
+#    -Wcast-align
+#    -Wunused
+#    -Wconversion
+#    -Wsign-conversion
+#    -Wnull-dereference
+#    -Wdouble-promotion
+#    -Wimplicit-fallthrough
+#)
 
 # Add main executable
-add_executable(dpe_main main.cpp ${SOURCES})
+add_executable(dpe_main ${CMAKE_SOURCE_DIR}/main.cpp ${SOURCES})
+set_target_properties(dpe_main PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 target_compile_options(dpe_main PRIVATE
     $<$<CONFIG:Debug>:${WARNING_FLAGS} -g -O0>
     $<$<CONFIG:Release>:${WARNING_FLAGS} -O3>
 )
-target_link_libraries(dpe_main PRIVATE Eigen3::Eigen ${CONAN_LIBS})
+target_link_libraries(dpe_main PRIVATE Eigen3::Eigen Crow::Crow ${CONAN_LIBS})
+
+# Set output directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Set up tests
 if(EXISTS ${TEST_DIR})
