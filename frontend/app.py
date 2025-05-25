@@ -1,49 +1,56 @@
-from dash import Dash, html, dcc, Input, Output, State, ctx
+from dash import Dash, html, dcc, Input, Output
+import dash
 import requests
 import pandas as pd
 
-import utils
-from callbacks import register_callbacks
+from src import utils
+from src.enums.enums_products import ImplementedInterestRatesProducts, ImplementerEquityProducts
+from src.callbacks import register_callbacks
 
-# Initialize the Dash app
 app = Dash(__name__)
 app.title = "Derivatives Pricing Dashboard"
 
 CURVE_FOLDER = "backend/data/interest_rate_curves"
 
+# Generate dropdown options from Enums
+interest_rate_options = [{"label": prod.name.title(), "value": prod.name} for prod in ImplementedInterestRatesProducts]
+equity_options = [{"label": prod.name.title(), "value": prod.name} for prod in ImplementerEquityProducts]
+all_product_options = interest_rate_options + equity_options
 
 # Define layout
 app.layout = html.Div([
-    html.H1("Derivatives Pricing Engine", style={"textAlign": "center"}),
+    html.H1("Derivatives Pricing Engine", style={"textAlign": "left"}),
 
     html.Div([
-        html.Label("Spot Price:"),
-        dcc.Input(id="spot", type="number", placeholder="e.g. 100", debounce=True),
+        html.Div([
+            html.Label("Select Product:"),
+            html.Div([
+                dcc.Dropdown(
+                    id="product-selector",
+                    options=all_product_options,
+                    placeholder="Choose a product",
+                    style={"width": "300px"}
+                ),
+                html.Button("OK", id="ok-button", n_clicks=0, style={"height": "40px"})
+            ], style={"display": "flex", "alignItems": "center", "gap": "1rem"})
+        ])
+    ], style={"maxWidth": "600px", "margin": "auto"}),
 
-        html.Label("Strike Price:"),
-        dcc.Input(id="strike", type="number", placeholder="e.g. 105", debounce=True),
-
-        html.Label("Maturity (in years):"),
-        dcc.Input(id="maturity", type="number", placeholder="e.g. 1.0", debounce=True),
-
-        html.Label("Volatility (e.g. 0.2 = 20%):"),
-        dcc.Input(id="volatility", type="number", step=0.01, placeholder="e.g. 0.2", debounce=True),
-
-        html.Label("Risk-Free Rate (e.g. 0.05 = 5%):"),
-        dcc.Input(id="rate", type="number", step=0.01, placeholder="e.g. 0.05", debounce=True),
-
-        html.Br(),
-        html.Button("Price Option", id="submit-button", n_clicks=0)
-    ], style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "1rem", "maxWidth": "600px", "margin": "auto"}),
+    html.Br(),
+    html.Div(id="product-form-container", style={"maxWidth": "600px", "margin": "auto"}),
 
     html.Hr(),
-    html.Div(id="output-container", style={"textAlign": "center", "fontSize": "24px"}),
+    html.Div(id="price-output", style={"textAlign": "center", "fontSize": "24px"}),
 
     html.Hr(),
     html.Div([
         html.H2("Interest Rate Curves"),
         html.Label("Choose Curve File:"),
-        dcc.Dropdown(id="curve-selector", options=[{"label": f, "value": f} for f in utils.get_list_curves(CURVE_FOLDER)], value=utils.get_list_curves(CURVE_FOLDER)[0]),
+        dcc.Dropdown(
+            id="curve-selector",
+            options=[{"label": f, "value": f} for f in utils.get_list_curves(CURVE_FOLDER)],
+            value=utils.get_list_curves(CURVE_FOLDER)[0]
+        ),
 
         html.Label("Edit Data Points (CSV format):"),
         dcc.Textarea(id="curve-editor", style={"width": "100%", "height": 200}),
