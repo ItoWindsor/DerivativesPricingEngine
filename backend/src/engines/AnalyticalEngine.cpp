@@ -88,7 +88,7 @@ double AnalyticalEngine::compute_price(const Bond& bond) const{
 double AnalyticalEngine::compute_price(const CallOption& call) const{
 
   if (call.get_exercise_kind() == ExerciseKind::American){
-std::cout << "not supported" << std::endl;
+    throw std::runtime_error("No analytical forumas for an american option");
   }
   switch (this->model->get_model_name()) {
     case ModelName::BlackScholes : {
@@ -128,6 +128,8 @@ std::cout << "not supported" << std::endl;
     case ModelName::Heston : {
       return 0.0;
     }
+    default: 
+      throw std::runtime_error("Unsupported model type in AnalyticalEngine");
   }
 }
 

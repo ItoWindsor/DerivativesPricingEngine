@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 #include <vector>
 #include <tuple>
 #include "utils/DayCount.hpp"
@@ -15,11 +16,14 @@ double compute_year_fraction(
 
   switch (convention) {
       case DayCountConvention::Actual360:
-          return static_cast<double>(days) / 360.0;
+        return static_cast<double>(days) / 360.0;
       case DayCountConvention::Actual365:
-          return static_cast<double>(days) / 365.0;
+        return static_cast<double>(days) / 365.0;
       case DayCountConvention::Actual:
-          return static_cast<double>(days);
+        return static_cast<double>(days);
+      default:
+        throw std::runtime_error("Unsupported convention");
+  
   }
 }
 
@@ -87,6 +91,8 @@ double compute_discount_factor(
         case CompoundingFrequency::monthly:
           df = std::pow(1 + (yield/12.0), -12.0 * time_to_maturity);
           break;
+        default: 
+          throw std::runtime_error("Unsupported compounding frequency");
       }
       break;
   }
