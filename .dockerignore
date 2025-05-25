@@ -1,0 +1,17 @@
+**/__pycache__/
+*.pyc
+*.pyo
+*.swp
+*.swo
+*.log
+*.o
+*.a
+*.out
+*.so
+*.dSYM/
+build/
+.vscode/
+.idea/
+.git/
+.venv/
+
