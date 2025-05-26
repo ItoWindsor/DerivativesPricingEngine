@@ -9,6 +9,7 @@
 #include "utils/UsualPayoffs.hpp"
 #include "models/BlackScholeModel.hpp"
 #include "structs/BasisFunctions.hpp"
+#include "rest_api/server.hpp"
 
 int main(){
 
