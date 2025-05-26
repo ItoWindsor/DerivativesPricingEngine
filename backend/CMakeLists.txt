@@ -60,6 +60,15 @@ target_compile_options(dpe_main PRIVATE
 )
 target_link_libraries(dpe_main PRIVATE Eigen3::Eigen Crow::Crow ${CONAN_LIBS})
 
+
+add_executable(dpe_server ${CMAKE_SOURCE_DIR}/server_main.cpp ${SOURCES})
+set_target_properties(dpe_server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+target_compile_options(dpe_server PRIVATE
+    $<$<CONFIG:Debug>:${WARNING_FLAGS} -g -O0>
+    $<$<CONFIG:Release>:${WARNING_FLAGS} -O3>
+)
+target_link_libraries(dpe_server PRIVATE Eigen3::Eigen Crow::Crow ${CONAN_LIBS})
+
 # Set output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
