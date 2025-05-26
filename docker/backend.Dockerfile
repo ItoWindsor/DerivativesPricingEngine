@@ -33,13 +33,13 @@ RUN mkdir -p /app/build/release && \
     cmake ../.. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release && \
     cmake --build .
 
-# Stage 2: Runtime
-FROM --platform=linux/amd64 debian:bullseye-slim
-RUN apt-get update && \
-    apt-get install -y libstdc++6 && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 2: Runtime (reuse gcc image for compatibility)
+FROM --platform=linux/amd64 gcc:13.2
 
-# Fix the paths here
+# Only install minimal runtime dependencies if needed (optional)
+# RUN apt-get update && apt-get install -y libssl-dev && rm -rf /var/lib/apt/lists/*
+
+# Just copy what’s needed from the builder
 COPY --from=builder /app/build/release/bin/dpe_main /usr/local/bin/dpe_main
 COPY --from=builder /app/cpprest_api /app/cpprest_api
 COPY --from=builder /app/data /app/data

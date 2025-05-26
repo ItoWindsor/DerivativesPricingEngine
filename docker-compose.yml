@@ -3,12 +3,11 @@ services:
     build:
       context: .
       dockerfile: docker/backend.Dockerfile
-      # platform: linux/amd64  # Remove this line (set in Dockerfile instead)
-    platform: linux/amd64  # <-- Move platform here (service level)
+    platform: linux/amd64
     ports:
       - "8080:8080"
     volumes:
-      - ./backend/data:/app/data
+      - shared-data:/app/data  # <--- Named volume
     restart: unless-stopped
 
   frontend:
@@ -19,6 +18,12 @@ services:
       - "8050:8050"
     environment:
       - BACKEND_URL=http://backend:8080
+    volumes:
+      - shared-data:/app/data  # <--- Same named volume
     restart: unless-stopped
     depends_on:
       - backend
+
+volumes:
+  shared-data:
+    driver: local
