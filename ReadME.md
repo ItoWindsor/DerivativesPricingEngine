@@ -1,4 +1,4 @@
-# Option Derivatives Engine
+# Derivatives Pricing Engine
 ![C++](https://img.shields.io/badge/-C++-2C41CB?style=for-the-badge&logo=C%2B%2B&logoColor=white)
 ![Python](https://img.shields.io/badge/-Python-E15622?style=for-the-badge&logo=Python&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=fff)
@@ -74,11 +74,13 @@ DerivativesPricingEngine/
 
 2. **Build the project**:
    ```bash
-   ./build.sh
+   docker-compose --build
    ```
 
-3. **Run the main**:
+3. **Run the project**:
    ```bash
-   ./build/debug/dpe_main
+   docker-compose up
    ```
+4. **Access the dashboard**:  
+   Open your browser and go to: [http://localhost:8050](http://localhost:8050)
 ---
