@@ -1,7 +1,13 @@
-from dash import Input, Output, State, callback
+import os 
+
+import pandas as pd
+import plotly.graph_objs as go
+
+from io import StringIO
+from dash import Input, Output, State, callback, html, dcc, Input
 from requests import options
+
 from src.enums.enums_products import ImplementedInterestRatesProducts, ImplementedEquityProducts
-from dash import Dash, html, dcc, Input, Output
 
 def register_callbacks(app, curve_folder):
     @app.callback(
@@ -108,3 +114,27 @@ def register_callbacks(app, curve_folder):
             html.Br(),
             html.Button("Price Product", id="price-button", n_clicks=0, style={"marginTop": "1rem"})
         ])
+
+    @app.callback(
+        Output("curve-editor", "value"),
+        Input("curve-selector", "value"),
+    )
+    def load_curve_data(filename):
+        df = pd.read_csv(os.path.join(curve_folder, filename))
+        return df.to_csv(index=False)
+
+    @app.callback(
+        Output("curve-plot", "figure"),
+        Input("update-curve-button", "n_clicks"),
+        State("curve-editor", "value"),
+    )
+    def plot_curve(_, csv_text):
+        try:
+            df = pd.read_csv(StringIO(csv_text))
+            df["date"] = pd.to_datetime(df["date"])
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df["date"], y=df["interest_rate"], mode="lines+markers", name="Rate"))
+            fig.update_layout(title="Interest Rate Curve", xaxis_title="Date", yaxis_title="Rate")
+            return fig
+        except Exception as e:
+            return go.Figure(layout={"title": f"Error: {e}"})
