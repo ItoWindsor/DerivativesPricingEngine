@@ -40,9 +40,8 @@ FROM --platform=linux/amd64 gcc:13.2
 # RUN apt-get update && apt-get install -y libssl-dev && rm -rf /var/lib/apt/lists/*
 
 # Just copy what’s needed from the builder
-COPY --from=builder /app/build/release/bin/dpe_main /usr/local/bin/dpe_main
-COPY --from=builder /app/cpprest_api /app/cpprest_api
+COPY --from=builder /app/build/release/bin/dpe_server /usr/local/bin/dpe_server
 COPY --from=builder /app/data /app/data
 
 EXPOSE 8080
-CMD ["/usr/local/bin/dpe_main"]
+CMD ["/usr/local/bin/dpe_server"]

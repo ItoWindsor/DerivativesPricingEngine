@@ -1,5 +1,4 @@
 from dash import Dash, html, dcc, Input, Output
-import dash
 import requests
 import pandas as pd
 

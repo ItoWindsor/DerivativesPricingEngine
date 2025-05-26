@@ -1,13 +1,15 @@
 import os 
+import requests
 
 import pandas as pd
 import plotly.graph_objs as go
 
 from io import StringIO
 from dash import Input, Output, State, callback, html, dcc, Input
-from requests import options
 
 from src.enums.enums_products import ImplementedInterestRatesProducts, ImplementedEquityProducts
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8080")
 
 def register_callbacks(app, curve_folder):
     @app.callback(
@@ -104,6 +106,29 @@ def register_callbacks(app, curve_folder):
                     ])
                 ]
 
+            if product in [ImplementedEquityProducts.CALLOPTION, ImplementedEquityProducts.PUTOPTION]:
+
+                product_specific += [
+                    html.Label("How to compute:"),
+                    dcc.Dropdown(id="computing-engine", options = [
+                        {"label": "Analytical Formulas", "value":"analytical"},
+                        {"label": "Monte Carlo method", "value": "monte_carlo"},
+                        {"label": "Binomial Tree method", "value": "binomial_tree"},
+                        {"label": "Finite Difference method", "value": "finite_difference"}
+                    ])
+                ]
+
+            else:
+                product_specific += [
+                    html.Label("How to compute:"),
+                    dcc.Dropdown(id="computing-engine", options = [
+                        {"label": "Monte Carlo method", "value": "monte_carlo"},
+                        {"label": "Binomial Tree method", "value": "binomial_tree"},
+                        {"label": "Finite Difference method", "value": "finite_difference"}
+                    ])
+                ]
+
+
         return html.Div([
             html.Div(base_params + product_specific, style={
                 "display": "grid",
@@ -138,3 +163,21 @@ def register_callbacks(app, curve_folder):
             return fig
         except Exception as e:
             return go.Figure(layout={"title": f"Error: {e}"})
+
+    @app.callback(
+        Output("price-output", "children"),
+        Input("ok-button", "n_clicks"),
+        State("product-selector", "value")
+    )
+    def price_product(n_clicks, selected_product):
+        if n_clicks > 0 and selected_product:
+            try:
+                # Send GET request to C++ backend
+                response = requests.get(f"{BACKEND_URL}/")
+                if response.status_code == 200:
+                    return f"Response from C++ backend: {response.text}"
+                else:
+                    return f"Error: Received status code {response.status_code}"
+            except Exception as e:
+                return f"Request failed: {str(e)}"
+        return ""
