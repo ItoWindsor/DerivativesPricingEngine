@@ -10,7 +10,7 @@ from src.callbacks import register_callbacks
 app = Dash(__name__)
 app.title = "Derivatives Pricing Dashboard"
 
-CURVE_FOLDER = "backend/data/interest_rate_curves"
+CURVE_FOLDER = "/app/data/interest_rate_curves"
 
 # Generate dropdown options from Enums
 interest_rate_options = [{"label": prod.name.title(), "value": prod.name} for prod in ImplementedInterestRatesProducts]
@@ -63,4 +63,4 @@ app.layout = html.Div([
 register_callbacks(app, CURVE_FOLDER)
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, host="0.0.0.0", port=8050)
