@@ -33,23 +33,22 @@ file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
 file(GLOB_RECURSE HEADERS "${INCLUDE_DIR}/*.hpp")
 
 # Common warning flags
-set(WARNING_FLAGS -Wall -Wextra)
+#set(WARNING_FLAGS -Wall -Wextra)
 
-#set(WARNING_FLAGS
-#    -Wall
-#    -Wextra
-#    -Wpedantic
-#    -Werror
-#    -Wnon-virtual-dtor
-#    -Wold-style-cast
-#    -Wcast-align
-#    -Wunused
-#    -Wconversion
-#    -Wsign-conversion
-#    -Wnull-dereference
-#    -Wdouble-promotion
-#    -Wimplicit-fallthrough
-#)
+set(WARNING_FLAGS
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+    -Wnon-virtual-dtor
+    -Wold-style-cast
+    -Wcast-align
+    -Wunused
+    -Wconversion
+    -Wsign-conversion
+    -Wdouble-promotion
+    -Wimplicit-fallthrough
+)
 
 # Add main executable
 add_executable(dpe_main ${CMAKE_SOURCE_DIR}/main.cpp ${SOURCES})

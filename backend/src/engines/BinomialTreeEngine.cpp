@@ -6,6 +6,7 @@
 #include "models/BlackScholeModel.hpp"
 #include "enums/TreeModel.hpp"
 #include <memory>
+#include <stdexcept>
 #include <tuple>
 
 BinomialTreeEngine::BinomialTreeEngine(std::shared_ptr<MarketData> market_data)
@@ -50,18 +51,20 @@ std::tuple<double,double> BinomialTreeEngine::generate_proba_tree(double T) cons
           pd = 0.5;
           return std::make_tuple(pu,pd);
         }
+      default:
+        throw std::runtime_error("Unexpected three model");
       }
     }
     
     case ModelName::Heston : {
       return std::make_tuple(pu,pd);
     }
-
+    default:
+      throw std::runtime_error("Unexpected underlying model");
   }
 
 }
 
-//TODO 
 std::tuple<double,double> BinomialTreeEngine::generate_up_down_tree(double T) const{
   double u = 0.0;
   double d = 0.0;
@@ -87,13 +90,16 @@ std::tuple<double,double> BinomialTreeEngine::generate_up_down_tree(double T) co
           d = std::exp( (r - 0.5*sigma*sigma)*step - sigma*std::sqrt(step) );
           return std::make_tuple(u,d);
         }
+        default:
+          throw std::runtime_error("Unexpected tree model");
       }
 
     }
-
     case ModelName::Heston : {
         return std::make_tuple(u,d);
       }
+    default:
+      throw std::runtime_error("Unexpected underlying model");
   }
 }
 
@@ -121,6 +127,8 @@ Eigen::MatrixXd BinomialTreeEngine::generate_tree_mat(double T) const{
     case ModelName::Heston : {
       return Eigen::MatrixXd::Zero(this->n_steps + 1, this->n_steps + 1); 
     }
+    default:
+      throw std::runtime_error("Unexpected underlying model");
   }
 }
 
@@ -136,7 +144,7 @@ double BinomialTreeEngine::compute_price(const Option& option) const{
       
       std::variant<std::chrono::sys_days, double> valuation_date = option.get_valuation_date();
       std::variant<std::chrono::sys_days, double> maturity_date = option.get_maturity_date();
-      double tau;
+      double tau = 0.0;
       
       if (std::holds_alternative<std::chrono::sys_days>(valuation_date) &&
           std::holds_alternative<std::chrono::sys_days>(maturity_date)) {
@@ -157,12 +165,17 @@ double BinomialTreeEngine::compute_price(const Option& option) const{
         throw std::runtime_error("Mismatched date types for valuation and maturity.");
       }
       
+      if (tau <= 0.0) {
+          throw std::runtime_error("Invalid time to maturity (tau <= 0.0)");
+      }
+
       double step = tau/this->get_n_steps();
       double df = std::exp(- r * step);
 
       Eigen::MatrixXd stock_mat = this->generate_tree_mat(tau);
       auto [pu,pd] = this->generate_proba_tree(tau);
       Eigen::MatrixXd option_mat = Eigen::MatrixXd::Zero(this->n_steps+1, this->n_steps+1);
+      assert(option_mat.rows() > 0 && option_mat.cols() > 0);
 
       for(int j = this->n_steps; j >= 0; --j){
         for(int i = 0; i <= j; ++i){

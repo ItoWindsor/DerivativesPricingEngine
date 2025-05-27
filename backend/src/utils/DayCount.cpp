@@ -12,7 +12,7 @@ double compute_year_fraction(
   DayCountConvention convention) {
 
   std::chrono::days days_duration = std::chrono::duration_cast<std::chrono::days>(end - start);
-  double days = days_duration.count();
+  double days = static_cast<double>(days_duration.count());
 
   switch (convention) {
       case DayCountConvention::Actual360:
