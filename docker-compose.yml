@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - shared-data:/app/data  # <--- Named volume
+      - shared-data:/app/data  
     restart: unless-stopped
 
   frontend:
@@ -19,7 +19,7 @@ services:
     environment:
       - BACKEND_URL=http://backend:8080
     volumes:
-      - shared-data:/app/data  # <--- Same named volume
+      - shared-data:/app/data 
     restart: unless-stopped
     depends_on:
       - backend
