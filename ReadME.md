@@ -21,45 +21,60 @@ The goal is to create a **modular and extensible derivatives pricing library**, 
 
 ```
 DerivativesPricingEngine/
-├── src/                                    # Main source code
-│   ├── core/                               # Core abstractions and interfaces
-│   │   ├── Instrument.cpp
-│   │   ├── InterestRateCurve.cpp
-│   │   ├── MarketData.cpp
-│   │   ├── PricingEngine.cpp
-│   │   └── UnderlyingModel.cpp
-│   ├── curves/                             # Interest rate curve implementations
-│   │   └── FlatCurve.cpp
-│   ├── engines/                            # Pricing engines
-│   │   ├── AnalyticalEngine.cpp
-│   │   ├── BinomialTreeEngine.cpp
-│   │   ├── FiniteDifferenceEngine.cpp
-│   │   └── MonteCarloEngine.cpp
-│   ├── instruments/                        # Financial instruments
+├── backend/                                 # C++ backend for pricing engine
+│   ├── build.sh                             # Build script
+│   ├── CMakeLists.txt                       # CMake build configuration
+│   ├── CMakeUserPresets.json                # CMake presets
+│   ├── compile_commands.json -> build/debug/compile_commands.json
+│   ├── conanfile.txt                        # Conan dependencies
+│   ├── data/                                # Static data inputs
 │   │   ├── equity/
-│   │   │   ├── Option.cpp
-│   │   │   └── CallOption.cpp
-│   │   └── interest_rates/
-│   │       ├── Bond.cpp
-│   │       └── Swap.cpp
-│   ├── models/                             # Underlying stochastic models
-│   │   └── BlackScholeModel.cpp
-│   └── utils/                              # Utility functions and helpers
-│       ├── AnalyticalFormulas.cpp
-│       ├── CurveInterpolation.cpp
-│       ├── DayCount.cpp
-│       ├── EnumToString.cpp
-│       ├── Simulation.cpp
-│       ├── TimeSchedule.cpp
-│       └── UsualPayoffs.cpp
-├── external/                               # Third-party libraries and Conan dependencies
-├── tests/                                  # Unit tests
-│   ├── test_black_scholes_analytical.cpp
-│   └── test_black_scholes_binomial_tree.cpp
-├── CMakeLists.txt                          # CMake build configuration
-├── conanfile.txt                           # Conan dependencies
-├── build.sh                                # Build script
-└── README.md                               # Project documentation
+│   │   └── interest_rate_curves/
+│   ├── include/                             # C++ headers
+│   │   ├── core/                            # Core abstractions and interfaces
+│   │   ├── curves/                          # Interest rate curves
+│   │   ├── engines/                         # Pricing engine implementations
+│   │   ├── enums/                           # Enum definitions
+│   │   ├── instruments/                     # Financial instruments
+│   │   ├── models/                          # Underlying stochastic models
+│   │   ├── rest_api/                        # REST API interface
+│   │   ├── structs/                         # Shared data structures
+│   │   └── utils/                           # Utility functions and helpers
+│   ├── main.cpp                             
+│   ├── server_main.cpp                      # REST API server (used for the backend) 
+│   ├── src/                                 # Source code implementations
+│   │   ├── core/
+│   │   ├── curves/
+│   │   ├── engines/
+│   │   ├── instruments/
+│   │   ├── models/
+│   │   ├── rest_api/
+│   │   ├── structs/
+│   │   └── utils/
+│   └── tests/                               # Unit and integration tests
+│       ├── test_black_scholes.cpp
+│       ├── test_black_scholes_analytical.cpp
+│       ├── test_black_scholes_binomial_tree.cpp
+│       ├── test_black_scholes_monte_carlo.cpp
+│       ├── test_day_count_convention.cpp
+│       ├── test_interest_rate_curve.cpp
+│       ├── test_pricing_bond.cpp
+│       └── test_simulation.cpp
+├── docker/                                  # Docker configuration
+│   ├── backend.Dockerfile
+│   └── frontend.Dockerfile
+├── docker-compose.yml                       # Docker orchestration
+├── frontend/                                # Python Dash frontend
+│   ├── app.py                               # Entry point for Dash app
+│   ├── assets/                              # Static assets (e.g., favicon)
+│   │   └── favicon.ico
+│   ├── requirements.txt                     # Python dependencies
+│   └── src/                                 # Frontend source modules
+│       ├── __init__.py
+│       ├── callbacks.py
+│       ├── enums/
+│       └── utils.py
+└── ReadME.md                                # Project documentation
 ```
 
 ---
