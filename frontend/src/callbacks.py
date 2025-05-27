@@ -1,183 +1,303 @@
-import os 
-import requests
-
+from dash import Input, Output, State, callback_context
+from dash.exceptions import PreventUpdate
+from dash import html, dcc
+from datetime import datetime
+import plotly.graph_objects as go
 import pandas as pd
-import plotly.graph_objs as go
-
+import os
 from io import StringIO
-from dash import Input, Output, State, callback, html, dcc, Input
 
-from src.enums.enums_products import ImplementedInterestRatesProducts, ImplementedEquityProducts
+from src.forms.equity_forms import get_equity_form
+from src.forms.interest_rate_forms import get_interest_rate_form
+from src.utils.api import send_equity_pricing_request, send_ir_pricing_request
+from src.utils.utils import get_list_curves
 
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8080")
+def register_callbacks(app):
+    CURVE_FOLDER = "/app/data/interest_rate_curves"
 
-def register_callbacks(app, curve_folder):
     @app.callback(
-        Output("product-form-container", "children"),
-        Input("ok-button", "n_clicks"),
-        State("product-selector", "value"),
-        prevent_initial_call=True
+        Output("date-inputs-container", "style"),
+        Output("product-form", "children"),
+        Output("submit-button", "style"),
+        Output("curve-editor-container", "style"),
+        Input("confirm-button", "n_clicks"),
+        State("product-dropdown", "value"),
+        State("date-format", "value"),
     )
-    def render_product_form(n_clicks, product_name):
-        if not product_name:
-            return []
+    def show_form_elements(n_clicks, product, date_format):
+        if not n_clicks:
+            raise PreventUpdate
 
-        base_params = [
-            html.Label("Start Date:"),
-            dcc.Input(id="start-date", type="text", placeholder="YYYY-MM-DD"),
+        if not product or not date_format:
+            return (
+                {"display": "none"},
+                html.Div("Please select both a product and date format", 
+                         style={"color": "red", "margin": "10px 0"}),
+                {"display": "none"},
+                {"display": "none"}
+            )
 
-            html.Label("Valuation Date:"),
-            dcc.Input(id='valuation-date', type='text', placeholder="YYYY-MM-DD"),
+        if product in ["CALLOPTION", "PUTOPTION"]:
+            form_elements = []
+            equity_form = get_equity_form(product)
+            for element in equity_form:
+                form_elements.append(html.Div(element, style={"margin": "10px 0"}))
+            return (
+                {"display": "block"},
+                html.Div(form_elements),
+                {"margin": "20px 0", "display": "block"},
+                {"display": "none"}
+            )
+            
+        elif product in ["BOND"]:
+            form_elements = []
+            ir_form = get_interest_rate_form()
+            for element in ir_form:
+                form_elements.append(html.Div(element, style={"margin": "10px 0"}))
+            return (
+                {"display": "block"},
+                html.Div(form_elements),
+                {"margin": "20px 0", "display": "block"},
+                {"display": "block"}
+            )
+            
+        return {"display": "none"}, html.Div("Unsupported product type"), {"display": "none"}, {"display": "none"}
 
-            html.Label("Maturity Date:"),
-            dcc.Input(id="maturity-date", type="text", placeholder="YYYY-MM-DD"),
-
-        ]
-
-        product_specific = []
-
-        if product_name in ImplementedInterestRatesProducts.__members__:
-            product = ImplementedInterestRatesProducts[product_name]
-            if product == ImplementedInterestRatesProducts.BOND:
-                product_specific = [
-                    html.Label("Face Value:"),
-                    dcc.Input(id="face-value", type="number", value=100, step=0.01),
-
-                    html.Label("Coupon Rate:"),
-                    dcc.Input(id="coupon-rate", type="number", value=0.05, step=0.01),
-
-                    html.Label("Spread:"),
-                    dcc.Input(id="spread", type="number", value=0.01, step=0.01),
-
-                    html.Label("Compounding Method:"),
-                    dcc.Dropdown(id="compounding-method", options=[
-                        {"label": "Continuous", "value": "continuous"},
-                        {"label": "Actuarial", "value": "actuarial"},
-                    ]),
-
-                    html.Label("Compounding Frequency:"),
-                    dcc.Dropdown(id="compounding-frequency", options=[
-                        {"label": "Annually", "value": "annually"},
-                        {"label": "Semi-Annually", "value": "semiannually"},
-                        {"label": "Quarterly", "value": "quarterly"},
-                        {"label": "Monthly", "value": "monthly"},
-                    ]),
-                    
-                    
-                    html.Label("Day Count Convention:"),
-                    dcc.Dropdown(id="day-count-convention", options=[
-                        {"label": "Actual", "value": "actual"},
-                        {"label": "Actual/360", "value": "actual360"},
-                        {"label": "Actual/365", "value": "actual365"},
-                    ]),
-
-                    html.Label("Short Schedule:"),
-                    dcc.Dropdown(id="short-schedule", options=[
-                        {"label": "At the beginning", "value": "shortstart"},
-                        {"label": "At the end", "value": "shortend"},
-                    ]),
-                ]
-
-        elif product_name in ImplementedEquityProducts.__members__:
-            product = ImplementedEquityProducts[product_name]
-
-            common_fields = [
-                html.Label("Spot Price:"),
-                dcc.Input(id="spot", type="number", value=100, min=0.0),
-
-                html.Label("Strike Price:"),
-                dcc.Input(id="strike", type="number", value=100, min=0.0),
-
-                html.Label("Volatility:"),
-                dcc.Input(id="volatility", type="number", value=0.2, step=0.01, min=0.0),
-
-                html.Label("Risk-Free Rate:"),
-                dcc.Input(id="rate", type="number", value=0.02, step=0.01),
-            ]
-
-            if product == ImplementedEquityProducts.EUROPEANOPTION:
-                product_specific = common_fields
-            else:
-                product_specific = common_fields + [
-                    html.Label("Exercise Style:"),
-                    dcc.Dropdown(id="exercise-kind", options=[
-                        {"label": "European", "value": "european"},
-                        {"label": "American", "value": "american"},
-                    ])
-                ]
-
-            if product in [ImplementedEquityProducts.CALLOPTION, ImplementedEquityProducts.PUTOPTION]:
-
-                product_specific += [
-                    html.Label("How to compute:"),
-                    dcc.Dropdown(id="computing-engine", options = [
-                        {"label": "Analytical Formulas", "value":"analytical"},
-                        {"label": "Monte Carlo method", "value": "monte_carlo"},
-                        {"label": "Binomial Tree method", "value": "binomial_tree"},
-                        {"label": "Finite Difference method", "value": "finite_difference"}
-                    ])
-                ]
-
-            else:
-                product_specific += [
-                    html.Label("How to compute:"),
-                    dcc.Dropdown(id="computing-engine", options = [
-                        {"label": "Monte Carlo method", "value": "monte_carlo"},
-                        {"label": "Binomial Tree method", "value": "binomial_tree"},
-                        {"label": "Finite Difference method", "value": "finite_difference"}
-                    ])
-                ]
-
-
-        return html.Div([
-            html.Div(base_params + product_specific, style={
-                "display": "grid",
-                "gridTemplateColumns": "1fr 1fr",
-                "gap": "1rem",
-                "marginTop": "1rem"
-            }),
-            html.Br(),
-            html.Button("Price Product", id="price-button", n_clicks=0, style={"marginTop": "1rem"})
-        ])
+    @app.callback(
+        Output("curve-selector", "options"),
+        Output("curve-selector", "value"),
+        Input("product-dropdown", "value"),
+    )
+    def update_curve_selector(product):
+        if product == "BOND":
+            curve_files = get_list_curves(CURVE_FOLDER)
+            options = [{"label": f, "value": f} for f in curve_files]
+            value = curve_files[0] if curve_files else None
+            return options, value
+        return [], None
 
     @app.callback(
         Output("curve-editor", "value"),
         Input("curve-selector", "value"),
     )
     def load_curve_data(filename):
-        df = pd.read_csv(os.path.join(curve_folder, filename))
-        return df.to_csv(index=False)
+        if not filename:
+            return ""
+        
+        try:
+            df = pd.read_csv(os.path.join(CURVE_FOLDER, filename))
+            if not all(col in df.columns for col in ['date', 'interest_rate']):
+                return "Error: CSV must contain 'date' and 'interest_rate' columns"
+            return df.to_csv(index=False)
+        except Exception as e:
+            return f"Error loading curve: {str(e)}"
 
     @app.callback(
         Output("curve-plot", "figure"),
         Input("update-curve-button", "n_clicks"),
         State("curve-editor", "value"),
+        prevent_initial_call=True
     )
-    def plot_curve(_, csv_text):
+    def plot_curve(n_clicks, csv_text):
+        if not n_clicks:
+            raise PreventUpdate
+            
         try:
             df = pd.read_csv(StringIO(csv_text))
+            if 'date' not in df.columns or 'interest_rate' not in df.columns:
+                raise ValueError("CSV must contain 'date' and 'interest_rate' columns")
+                
             df["date"] = pd.to_datetime(df["date"])
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df["date"], y=df["interest_rate"], mode="lines+markers", name="Rate"))
-            fig.update_layout(title="Interest Rate Curve", xaxis_title="Date", yaxis_title="Rate")
+            fig.add_trace(go.Scatter(
+                x=df["date"], 
+                y=df["interest_rate"], 
+                mode="lines+markers",
+                line=dict(color='#1f77b4', width=2),
+                marker=dict(size=8, color='#ff7f0e'),
+                name="Rate"
+            ))
+            fig.update_layout(
+                title={"text": "risk free interest rate curve", "x": 0.5},
+                xaxis_title="Date",
+                yaxis_title="Rate (%)",
+                plot_bgcolor='rgba(240,240,240,0.8)',
+                margin=dict(l=40, r=40, t=60, b=40),
+                hovermode="x unified"
+            )
             return fig
         except Exception as e:
-            return go.Figure(layout={"title": f"Error: {e}"})
+            return go.Figure(layout={
+                "title": f"Error: {str(e)}",
+                "plot_bgcolor": "rgba(240,240,240,0.8)"
+            })
 
     @app.callback(
-        Output("price-output", "children"),
-        Input("ok-button", "n_clicks"),
-        State("product-selector", "value")
+        Output("product-output", "children"),
+        Input("submit-button", "n_clicks"),
+        State("product-dropdown", "value"),
+        State("date-format", "value"),
+        State("valuation-date", "value"),
+        State("maturity-date", "value"),
+        State("curve-selector", "value"),
+        State("face-value", "value"),
+        State("coupon-rate", "value"),
+        State("spread", "value"),
+        State("compounding-method", "value"),
+        State("compounding-frequency", "value"),
+        State("day-count-convention", "value"),
+        State("short-schedule", "value"),
+        State("curve-editor", "value"),
+        State("spot", "value"),
+        State("strike", "value"),
+        State("volatility", "value"),
+        State("rate", "value"),
+        State("exercise-kind", "value"),
+        State("computing-engine", "value"),
+        prevent_initial_call=True
     )
-    def price_product(n_clicks, selected_product):
-        if n_clicks > 0 and selected_product:
+    def handle_submit(n_clicks, product, date_format, valuation_date, maturity_date,
+                     curve_file, face_value, coupon_rate, spread, compounding_method,
+                     compounding_frequency, day_count_convention, short_schedule,
+                     curve_data, spot, strike, volatility, rate, exercise_kind, computing_engine):
+
+        if not n_clicks:
+            raise PreventUpdate
+
+        # Common validation for all products
+        try:
+            if date_format == "date":
+                valuation_date_obj = datetime.strptime(valuation_date, "%Y-%m-%d")
+                maturity_date_obj = datetime.strptime(maturity_date, "%Y-%m-%d")
+                val_date_str = valuation_date_obj.strftime("%Y-%m-%d")
+                mat_date_str = maturity_date_obj.strftime("%Y-%m-%d")
+            else:
+                valuation_date_obj = float(valuation_date)
+                maturity_date_obj = float(maturity_date)
+                val_date_str = str(valuation_date_obj)
+                mat_date_str = str(maturity_date_obj)
+        except Exception as e:
+            return html.Div([
+                html.P("Date parsing error:", style={"color": "red", "fontWeight": "bold"}),
+                html.P(str(e), style={"color": "red"})
+            ])
+
+        if product in ["CALLOPTION", "PUTOPTION"]:
+            if None in [spot, strike, volatility, rate, computing_engine, exercise_kind]:
+                return html.Div([
+                    html.P("Missing required fields:", style={"color": "red", "fontWeight": "bold"}),
+                    html.Ul([
+                        html.Li("Spot Price") if spot is None else None,
+                        html.Li("Strike Price") if strike is None else None,
+                        html.Li("Volatility") if volatility is None else None,
+                        html.Li("Risk-Free Rate") if rate is None else None,
+                        html.Li("Computing Engine") if computing_engine is None else None,
+                        html.Li("Exercise Style") if exercise_kind is None else None
+                    ])
+                ])
+
+            payload = {
+                "product": product,
+                "spot": spot,
+                "strike": strike,
+                "volatility": volatility,
+                "rate": rate,
+                "valuation_date": val_date_str,
+                "maturity": mat_date_str,
+                "engine": computing_engine,
+                "exercise": exercise_kind,
+                "date_format": date_format
+            }
+            
             try:
-                # Send GET request to C++ backend
-                response = requests.get(f"{BACKEND_URL}/")
-                if response.status_code == 200:
-                    return f"Response from C++ backend: {response.text}"
-                else:
-                    return f"Error: Received status code {response.status_code}"
+                result = send_equity_pricing_request(payload)
+                return html.Div([
+                    html.H4("Option Pricing Result", style={"marginBottom": "10px"}),
+                    html.P(f"Product: {product}"),
+                    html.P(f"Price: {result['price']:.4f}", style={
+                        "fontSize": "18px",
+                        "fontWeight": "bold",
+                        "color": "green"
+                    }),
+                    html.P(f"Calculation time: {result.get('calculation_time', 'N/A')}s")
+                ])
             except Exception as e:
-                return f"Request failed: {str(e)}"
-        return ""
+                return html.Div([
+                    html.P("Calculation error:", style={"color": "red", "fontWeight": "bold"}),
+                    html.P(str(e), style={"color": "red"})
+                ])
+
+        elif product in ["BOND"]:
+            # Save the edited curve data if modified
+            curve_saved_msg = None
+            if curve_file and curve_data:
+                try:
+                    curve_path = os.path.join(CURVE_FOLDER, curve_file)
+                    with open(curve_path, 'w') as f:
+                        f.write(curve_data)
+                    curve_saved_msg = html.P(
+                        f"Curve '{curve_file}' successfully updated",
+                        style={"color": "green", "fontSize": "12px", "marginTop": "10px"}
+                    )
+                except Exception as e:
+                    curve_saved_msg = html.P(
+                        f"Error saving curve: {str(e)}",
+                        style={"color": "red", "fontSize": "12px", "marginTop": "10px"}
+                    )
+
+            if None in [face_value, coupon_rate, spread, compounding_method,
+                       compounding_frequency, day_count_convention, short_schedule,
+                       computing_engine, curve_file]:
+                return html.Div([
+                    html.P("Missing required fields:", style={"color": "red", "fontWeight": "bold"}),
+                    html.Ul([
+                        html.Li("Face Value") if face_value is None else None,
+                        html.Li("Coupon Rate") if coupon_rate is None else None,
+                        html.Li("Spread") if spread is None else None,
+                        html.Li("Compounding Method") if compounding_method is None else None,
+                        html.Li("Compounding Frequency") if compounding_frequency is None else None,
+                        html.Li("Day Count Convention") if day_count_convention is None else None,
+                        html.Li("Short Schedule") if short_schedule is None else None,
+                        html.Li("Computing Engine") if computing_engine is None else None,
+                        html.Li("Curve File") if curve_file is None else None
+                    ])
+                ])
+
+            payload = {
+                "product": product,
+                "face_value": face_value,
+                "coupon_rate": coupon_rate,
+                "spread": spread,
+                "valuation_date": val_date_str,
+                "maturity": mat_date_str,
+                "curve_file": curve_file,
+                "compounding_method": compounding_method,
+                "compounding_frequency": compounding_frequency,
+                "day_count": day_count_convention,
+                "short_schedule": short_schedule,
+                "engine": computing_engine,
+                "date_format": date_format
+            }
+            
+            try:
+                result = send_ir_pricing_request(payload)
+                return html.Div([
+                    html.H4("Bond Pricing Result", style={"marginBottom": "10px"}),
+                    html.P(f"Face Value: {face_value}"),
+                    html.P(f"Coupon Rate: {coupon_rate}%"),
+                    html.P(f"Price: {result['price']:.4f}", style={
+                        "fontSize": "18px",
+                        "fontWeight": "bold",
+                        "color": "green"
+                    }),
+                    html.P(f"Yield: {result.get('yield', 'N/A')}%"),
+                    curve_saved_msg
+                ])
+            except Exception as e:
+                return html.Div([
+                    html.P("Calculation error:", style={"color": "red", "fontWeight": "bold"}),
+                    html.P(str(e), style={"color": "red"}),
+                    curve_saved_msg
+                ])
+
+        return html.Div("Unsupported product type", style={"color": "red"})
